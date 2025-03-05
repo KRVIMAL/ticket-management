@@ -22,7 +22,7 @@ export default function TicketListing() {
 
   const fetchTickets = async () => {
     try {
-      const fetchedTickets:any = await getTickets(page, limit)
+      const fetchedTickets: any = await getTickets(page, limit)
       setTickets(fetchedTickets?.data?.tickets)
     } catch (error) {
       console.error("Error fetching tickets:", error)
@@ -48,7 +48,7 @@ export default function TicketListing() {
     if (window.confirm("Are you sure you want to delete this ticket?")) {
       try {
         await deleteTicket(ticketId)
-        setTickets(tickets.filter((ticket:any) => ticket._id !== ticketId))
+        setTickets(tickets.filter((ticket: any) => ticket._id !== ticketId))
       } catch (error) {
         console.error("Error deleting ticket:", error)
         // Handle error (e.g., show an error message to the user)
@@ -57,7 +57,7 @@ export default function TicketListing() {
   }
 
   const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case "open":
         return "bg-green-100 text-green-800"
       case "in_progress":
@@ -75,49 +75,42 @@ export default function TicketListing() {
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Tickets</h2>
-        <button
-          onClick={handleCreateTicket}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-        >
+        <button onClick={handleCreateTicket} className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
           Create Ticket
         </button>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-background border rounded-lg">
-          <thead className="bg-muted">
+        <table className="min-w-full bg-white border rounded-lg">
+          <thead className="bg-gray-50">
             <tr>
-              <th className="py-3 px-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Ticket ID
               </th>
-              <th className="py-3 px-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Type
-              </th>
-              <th className="py-3 px-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Customer ID
               </th>
-              <th className="py-3 px-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Messages
               </th>
-              <th className="py-3 px-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Status
-              </th>
-              <th className="py-3 px-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border">
-            {tickets?.map((ticket) => (
-              <tr key={ticket.ticketId} className="hover:bg-muted/50">
-                <td className="py-4 px-4 text-sm">{ticket.ticketId}</td>
-                <td className="py-4 px-4 text-sm capitalize">{ticket.ticketType}</td>
-                <td className="py-4 px-4 text-sm">{ticket.customerId}</td>
+          <tbody className="divide-y divide-gray-200">
+            {tickets?.map((ticket:any) => (
+              <tr key={ticket?.ticketId} className="hover:bg-gray-50">
+                <td className="py-4 px-4 text-sm">{ticket?.ticketId}</td>
+                <td className="py-4 px-4 text-sm capitalize">{ticket?.ticketType}</td>
+                <td className="py-4 px-4 text-sm">{ticket?.customerId}</td>
                 <td className="py-4 px-4 text-sm">
-                  {ticket.messages.map((message, index) => (
+                  {ticket?.messages?.map((message:any, index:any) => (
                     <div key={index} className={index > 0 ? "mt-2" : ""}>
                       <p>{message.comments}</p>
-                      <p className="text-xs text-muted-foreground">By: {message.commentBy}</p>
+                      <p className="text-xs text-gray-500">By: {message.commentBy}</p>
                     </div>
                   ))}
                 </td>
@@ -154,13 +147,13 @@ export default function TicketListing() {
           try {
             if (isEditing && currentTicketId) {
               const updatedTicket = await updateTicket(currentTicketId, newTicket)
-              setTickets(tickets.map((ticket) => (ticket._id === currentTicketId ? updatedTicket : ticket)))
+              setTickets(tickets?.map((ticket) => (ticket._id === currentTicketId ? updatedTicket : ticket)))
             } else {
               const createdTicket = await createTicket(newTicket)
               setTickets([...tickets, createdTicket])
             }
             setIsModalOpen(false)
-            fetchTickets() // Refresh the list after adding/updating
+            await fetchTickets() // Refresh the list after adding/updating
           } catch (error) {
             console.error("Error adding/updating ticket:", error)
             // Handle error (e.g., show an error message to the user)

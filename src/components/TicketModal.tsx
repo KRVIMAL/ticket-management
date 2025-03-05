@@ -93,12 +93,12 @@ export function TicketModal({
   if (!isOpenModal) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-background rounded-lg w-full max-w-2xl max-h-[90vh] overflow-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold">{edit ? "Update Ticket" : "Create Ticket"}</h2>
-            <button onClick={handleUpdateDialogClose} className="text-muted-foreground hover:text-foreground">
+            <button onClick={handleUpdateDialogClose} className="text-gray-500 hover:text-gray-700">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6"
@@ -114,14 +114,14 @@ export function TicketModal({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="col-span-1">
               <label className="block text-sm font-medium mb-1">
-                Ticket Type <span className="text-destructive">*</span>
+                Ticket Type <span className="text-red-500">*</span>
               </label>
               <select
                 name="ticketType"
                 value={formField.ticketType.value}
                 onChange={handleOnChange}
                 className={`w-full p-2 border rounded-md ${
-                  formField.ticketType.error ? "border-destructive" : "border-input"
+                  formField.ticketType.error ? "border-red-500" : "border-gray-300"
                 }`}
               >
                 <option value="">Select Ticket Type</option>
@@ -131,21 +131,19 @@ export function TicketModal({
                   </option>
                 ))}
               </select>
-              {formField.ticketType.error && (
-                <p className="text-destructive text-xs mt-1">{formField.ticketType.error}</p>
-              )}
+              {formField.ticketType.error && <p className="text-red-500 text-xs mt-1">{formField.ticketType.error}</p>}
             </div>
 
             <div className="col-span-1">
               <label className="block text-sm font-medium mb-1">
-                Customer ID <span className="text-destructive">*</span>
+                Customer ID <span className="text-red-500">*</span>
               </label>
               <select
                 name="customerId"
                 value={formField.customerId.value}
                 onChange={handleOnChange}
                 className={`w-full p-2 border rounded-md ${
-                  formField.customerId.error ? "border-destructive" : "border-input"
+                  formField.customerId.error ? "border-red-500" : "border-gray-300"
                 }`}
               >
                 <option value="">Select Customer ID</option>
@@ -155,21 +153,19 @@ export function TicketModal({
                   </option>
                 ))}
               </select>
-              {formField.customerId.error && (
-                <p className="text-destructive text-xs mt-1">{formField.customerId.error}</p>
-              )}
+              {formField.customerId.error && <p className="text-red-500 text-xs mt-1">{formField.customerId.error}</p>}
             </div>
 
             <div className="col-span-1">
               <label className="block text-sm font-medium mb-1">
-                Status <span className="text-destructive">*</span>
+                Status <span className="text-red-500">*</span>
               </label>
               <select
                 name="ticketStatus"
                 value={formField.ticketStatus.value}
                 onChange={handleOnChange}
                 className={`w-full p-2 border rounded-md ${
-                  formField.ticketStatus.error ? "border-destructive" : "border-input"
+                  formField.ticketStatus.error ? "border-red-500" : "border-gray-300"
                 }`}
               >
                 <option value="">Select Status</option>
@@ -180,7 +176,7 @@ export function TicketModal({
                 ))}
               </select>
               {formField.ticketStatus.error && (
-                <p className="text-destructive text-xs mt-1">{formField.ticketStatus.error}</p>
+                <p className="text-red-500 text-xs mt-1">{formField.ticketStatus.error}</p>
               )}
             </div>
 
@@ -202,18 +198,18 @@ export function TicketModal({
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Enter new message"
-                  className="flex-grow p-2 border rounded-md border-input mr-2"
+                  className="flex-grow p-2 border rounded-md border-gray-300 mr-2"
                 />
                 <input
                   type="text"
                   value={newCommentBy}
                   onChange={(e) => setNewCommentBy(e.target.value)}
                   placeholder="Comment by"
-                  className="w-1/3 p-2 border rounded-md border-input mr-2"
+                  className="w-1/3 p-2 border rounded-md border-gray-300 mr-2"
                 />
                 <button
                   onClick={handleAddMessage}
-                  className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90"
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                 >
                   Add
                 </button>
@@ -224,14 +220,11 @@ export function TicketModal({
           <div className="flex justify-end mt-6 space-x-4">
             <button
               onClick={handleUpdateDialogClose}
-              className="px-4 py-2 border border-input rounded-md text-foreground hover:bg-accent"
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
             >
               Cancel
             </button>
-            <button
-              onClick={handleSubmit}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-            >
+            <button onClick={handleSubmit} className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
               {edit ? "Update" : "Create"}
             </button>
           </div>
