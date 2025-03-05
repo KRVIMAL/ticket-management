@@ -36,7 +36,30 @@ export function TicketModal({
     } else {
       setMessages([])
     }
-  }, [edit, formField.messages])
+  }, [edit, formField?.messages])
+
+  const resetForm = () => {
+    setFormField({
+      ticketId: { value: "", error: "" },
+      ticketType: { value: "", error: "" },
+      customerId: { value: "", error: "" },
+      ticketStatus: { value: "", error: "" },
+      messages: [],
+      newMessage: { value: "", error: "" },
+    })
+    setMessages([])
+    setNewMessage("")
+    setNewCommentBy("")
+    setEditingMessageIndex(null)
+    setMessageError("")
+    setCommentByError("")
+    setGeneralError("")
+  }
+
+  const handleCloseModal = () => {
+    resetForm()
+    handleUpdateDialogClose()
+  }
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -148,6 +171,7 @@ export function TicketModal({
     }
 
     addTicketHandler(newTicket)
+    resetForm()
   }
 
   if (!isOpenModal) return null
@@ -158,7 +182,7 @@ export function TicketModal({
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold">{edit ? "Update Ticket" : "Create Ticket"}</h2>
-            <button onClick={handleUpdateDialogClose} className="text-gray-500 hover:text-gray-700">
+            <button onClick={handleCloseModal} className="text-gray-500 hover:text-gray-700">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6"
@@ -258,24 +282,24 @@ export function TicketModal({
                 </div>
               ))}
               <div className="space-y-2">
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    New Message <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={newMessage}
+                <div className="flex space-x-2">
+                  <div className="flex-grow">
+                    <label className="block text-sm font-medium mb-1">
+                      New Message <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={newMessage}
                     onChange={(e:any) => {
                       setNewMessage(e?.target?.value)
-                      setMessageError("")
-                    }}
-                    placeholder="Enter new message"
-                    className={`w-full p-2 border rounded-md ${messageError ? "border-red-500" : "border-gray-300"}`}
-                  />
-                  {messageError && <p className="text-red-500 text-xs mt-1">{messageError}</p>}
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="flex-grow">
+                        setMessageError("")
+                      }}
+                      placeholder="Enter new message"
+                      className={`w-full p-2 border rounded-md ${messageError ? "border-red-500" : "border-gray-300"}`}
+                    />
+                    {messageError && <p className="text-red-500 text-xs mt-1">{messageError}</p>}
+                  </div>
+                  <div className="w-1/3">
                     <label className="block text-sm font-medium mb-1">
                       Comment By <span className="text-red-500">*</span>
                     </label>
@@ -293,12 +317,14 @@ export function TicketModal({
                     />
                     {commentByError && <p className="text-red-500 text-xs mt-1">{commentByError}</p>}
                   </div>
-                  <button
-                    onClick={handleAddMessage}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mt-6"
-                  >
-                    {editingMessageIndex !== null ? "Update" : "Add"}
-                  </button>
+                  <div className="flex items-end">
+                    <button
+                      onClick={handleAddMessage}
+                      className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                    >
+                      {editingMessageIndex !== null ? "Update" : "Add"}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -308,7 +334,7 @@ export function TicketModal({
 
           <div className="flex justify-end mt-6 space-x-4">
             <button
-              onClick={handleUpdateDialogClose}
+              onClick={handleCloseModal}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
             >
               Cancel
