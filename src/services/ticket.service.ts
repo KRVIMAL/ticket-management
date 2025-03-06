@@ -5,16 +5,24 @@ import { Ticket, TicketMessage } from "../types/ticket"
 const API_URL = "http://localhost:3000/tickets"
 
 // Fetch all tickets (Paginated)
-export const getTickets = async (page = 1, limit = 10): Promise<Ticket[]> => {
+export const getTickets = async (
+  page = 1,
+  limit = 10,
+  status?: string,
+  type?: string,
+): Promise<{ data: { tickets: Ticket[]; total: number } }> => {
   try {
-    const response = await axios.get(`${API_URL}?page=${page}&limit=${limit}`)
+    const params = new URLSearchParams({ page: page.toString(), limit: limit.toString() })
+    if (status) params.append("status", status)
+    if (type) params.append("type", type)
+
+    const response = await axios.get(`${API_URL}?${params.toString()}`)
     return response.data
   } catch (error) {
     console.error("Error fetching tickets:", error)
     throw error
   }
 }
-
 // Fetch a single ticket by ID
 export const getTicketById = async (id: string): Promise<Ticket> => {
   try {

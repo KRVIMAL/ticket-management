@@ -181,7 +181,7 @@ export function TicketModal({
       <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold">{edit ? "Update Ticket" : "Create Ticket"}</h2>
+            <h2 className="text-xl font-bold text-center">{edit ? "Update Ticket" : "Create Ticket"}</h2>
             <button onClick={handleCloseModal} className="text-gray-500 hover:text-gray-700">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
