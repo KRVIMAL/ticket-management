@@ -1,7 +1,4 @@
-"use client"
-
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { TicketModal } from "./TicketModal"
 import { ticketInsertField } from "../helpers/ticket-helper"
@@ -11,6 +8,7 @@ import toast, { Toaster } from "react-hot-toast"
 import DeleteConfirmationModal from "./DeleteConfirmationModal"
 import Pagination from "./Pagination"
 import useDebounce from "../hooks/useDebounce"
+import {FiEdit,FiTrash2} from "react-icons/fi";
 
 export default function TicketListing() {
   const [tickets, setTickets] = useState<Ticket[]>([])
@@ -158,7 +156,7 @@ export default function TicketListing() {
                 </th>
                 <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                 <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Customer ID
+                  USER NAME
                 </th>
                 <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Messages
@@ -176,7 +174,7 @@ export default function TicketListing() {
               <tr key={ticket?.ticketId} className="hover:bg-gray-50">
                 <td className="py-4 px-4 text-sm">{ticket?.ticketId}</td>
                 <td className="py-4 px-4 text-sm capitalize">{ticket?.ticketType}</td>
-                <td className="py-4 px-4 text-sm">{ticket?.customerId}</td>
+                <td className="py-4 px-4 text-sm">{ticket?.customer?.fullName}</td>
                   <td className="py-4 px-4 text-sm">
                   {ticket?.messages?.map((message:any, index:any) => (
                       <div key={index} className={index > 0 ? "mt-2" : ""}>
@@ -192,14 +190,19 @@ export default function TicketListing() {
                   </td>
                   <td className="py-4 px-4 text-sm">
                     <div className="flex space-x-2">
-                      <button onClick={() => handleEditTicket(ticket)} className="text-blue-600 hover:text-blue-900">
-                        Edit
+                      <button
+                        onClick={() => handleEditTicket(ticket)}
+                        className="text-blue-600 hover:text-blue-900"
+                        title="Edit ticket"
+                      >
+                        <FiEdit />
                       </button>
                       <button
-                        onClick={() => handleDeleteClick(ticket?._id || "")}
+                        onClick={() => handleDeleteClick(ticket._id || "")}
                         className="text-red-600 hover:text-red-900"
+                        title="Delete ticket"
                       >
-                        Delete
+                        <FiTrash2 />
                       </button>
                     </div>
                   </td>

@@ -4,6 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import type { Ticket, TicketFormFields, TicketMessage, TicketStatus, TicketType } from "../types/ticket"
 import { ticketTypeOptions, ticketStatusOptions, customerIdOptions, generateTicketId } from "../helpers/ticket-helper"
+import { FiX, FiEdit2, FiTrash2 } from "react-icons/fi"
 
 interface TicketModalProps {
   isOpenModal: boolean
@@ -31,12 +32,12 @@ export function TicketModal({
   const [generalError, setGeneralError] = useState("")
 
   useEffect(() => {
-    if (edit && formField?.messages) {
-      setMessages(formField?.messages)
+    if (edit && formField.messages) {
+      setMessages(formField.messages)
     } else {
       setMessages([])
     }
-  }, [edit, formField?.messages])
+  }, [edit, formField.messages])
 
   const resetForm = () => {
     setFormField({
@@ -78,12 +79,12 @@ export function TicketModal({
     setMessageError("")
     setCommentByError("")
 
-    if (!newMessage?.trim()) {
+    if (!newMessage.trim()) {
       setMessageError("Message is required")
       isValid = false
     }
 
-    if (!newCommentBy?.trim()) {
+    if (!newCommentBy.trim()) {
       setCommentByError("Comment by is required")
       isValid = false
     }
@@ -96,12 +97,12 @@ export function TicketModal({
     const newFormField = { ...formField }
     setGeneralError("")
 
-    if (!formField?.ticketType?.value) {
+    if (!formField.ticketType.value) {
       newFormField.ticketType.error = "Ticket type is required"
       isValid = false
     }
 
-    if (!formField?.customerId?.value) {
+    if (!formField.customerId.value) {
       newFormField.customerId.error = "Customer ID is required"
       isValid = false
     }
@@ -139,15 +140,15 @@ export function TicketModal({
 
   const handleEditMessage = (index: number) => {
     const messageToEdit = messages[index]
-    setNewMessage(messageToEdit?.comments)
-    setNewCommentBy(messageToEdit?.commentBy)
+    setNewMessage(messageToEdit.comments)
+    setNewCommentBy(messageToEdit.commentBy)
     setEditingMessageIndex(index)
     setMessageError("")
     setCommentByError("")
   }
 
   const handleRemoveMessage = (index: number) => {
-    setMessages(messages.filter((_:any, i:any) => i !== index))
+    setMessages(messages.filter((_, i) => i !== index))
     if (editingMessageIndex === index) {
       setEditingMessageIndex(null)
       setNewMessage("")
@@ -160,14 +161,14 @@ export function TicketModal({
   const handleSubmit = () => {
     if (!validateForm()) return
 
-    const ticketId = edit ? formField?.ticketId?.value : generateTicketId()
+    const ticketId = edit ? formField.ticketId.value : generateTicketId()
 
     const newTicket: Ticket = {
       ticketId,
-      ticketType: formField?.ticketType?.value as TicketType,
-      customerId: formField?.customerId?.value,
+      ticketType: formField.ticketType.value as TicketType,
+      customerId: formField.customerId.value,
       messages: messages,
-      ticketStatus: formField?.ticketStatus?.value as TicketStatus,
+      ticketStatus: formField.ticketStatus.value as TicketStatus,
     }
 
     addTicketHandler(newTicket)
@@ -181,17 +182,9 @@ export function TicketModal({
       <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-center">{edit ? "Update Ticket" : "Create Ticket"}</h2>
-            <button onClick={handleCloseModal} className="text-gray-500 hover:text-gray-700">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+            <h2 className="text-xl font-bold">{edit ? "Update Ticket" : "Create Ticket"}</h2>
+            <button onClick={handleUpdateDialogClose} className="text-gray-500 hover:text-gray-700" title="Close">
+              <FiX className="h-6 w-6" />
             </button>
           </div>
 
@@ -272,11 +265,19 @@ export function TicketModal({
                     {message?.comments} - By: {message?.commentBy}
                   </p>
                   <div className="flex space-x-2">
-                    <button onClick={() => handleEditMessage(index)} className="text-blue-600 hover:text-blue-800">
-                      Edit
+                    <button
+                      onClick={() => handleEditMessage(index)}
+                      className="text-blue-600 hover:text-blue-800"
+                      title="Edit message"
+                    >
+                      <FiEdit2 />
                     </button>
-                    <button onClick={() => handleRemoveMessage(index)} className="text-red-600 hover:text-red-800">
-                      Remove
+                    <button
+                      onClick={() => handleRemoveMessage(index)}
+                      className="text-red-600 hover:text-red-800"
+                      title="Remove message"
+                    >
+                      <FiTrash2 />
                     </button>
                   </div>
                 </div>
