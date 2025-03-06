@@ -48,7 +48,6 @@ export default function TicketListing() {
       setTotal(response.data.total);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching tickets:', error);
       toast.error('Failed to fetch tickets');
       setLoading(false);
     }
@@ -82,7 +81,6 @@ export default function TicketListing() {
         );
         toast.success('Ticket deleted successfully');
       } catch (error) {
-        console.error('Error deleting ticket:', error);
         toast.error('Failed to delete ticket');
       }
     }
@@ -107,7 +105,7 @@ export default function TicketListing() {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
-    setPage(1); // Reset to first page when searching
+    setPage(1);
   };
 
   return (
@@ -270,7 +268,6 @@ export default function TicketListing() {
             setIsModalOpen(false);
             fetchTickets();
           } catch (error) {
-            console.error('Error adding/updating ticket:', error);
             toast.error('Failed to save ticket');
           }
         }}

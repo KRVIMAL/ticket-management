@@ -19,7 +19,6 @@ export const getTickets = async (
     const response = await axios.get(`${API_URL}?${params.toString()}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching tickets:', error);
     throw error;
   }
 };
@@ -29,7 +28,6 @@ export const getTicketById = async (id: string): Promise<Ticket> => {
     const response = await axios.get(`${API_URL}/${id}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching ticket:', error);
     throw error;
   }
 };
@@ -41,7 +39,6 @@ export const createTicket = async (
     const response = await axios.post(API_URL, ticketData);
     return response.data;
   } catch (error) {
-    console.error('Error creating ticket:', error);
     throw error;
   }
 };
@@ -54,7 +51,6 @@ export const updateTicket = async (
     const response = await axios.put(`${API_URL}/${id}`, updatedData);
     return response.data;
   } catch (error) {
-    console.error('Error updating ticket:', error);
     throw error;
   }
 };
@@ -63,7 +59,6 @@ export const deleteTicket = async (id: string): Promise<void> => {
   try {
     await axios.delete(`${API_URL}/${id}`);
   } catch (error) {
-    console.error('Error deleting ticket:', error);
     throw error;
   }
 };
@@ -78,7 +73,6 @@ export const addMessageToTicket = async (
     });
     return response.data;
   } catch (error) {
-    console.error('Error adding message to ticket:', error);
     throw error;
   }
 };
@@ -94,7 +88,6 @@ export const searchTickets = async (
     );
     return response.data;
   } catch (error) {
-    console.error('Error searching tickets:', error);
     throw error;
   }
 };
