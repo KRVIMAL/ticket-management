@@ -1,13 +1,16 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect } from "react"
 import { TicketModal } from "./TicketModal"
 import { ticketInsertField } from "../helpers/ticket-helper"
 import type { Ticket } from "../types/ticket"
-import { getTickets, deleteTicket, createTicket, updateTicket } from "../services/ticket.service"
+import { getTickets, deleteTicket, createTicket, updateTicket, searchTickets } from "../services/ticket.service"
 import toast, { Toaster } from "react-hot-toast"
 import DeleteConfirmationModal from "./DeleteConfirmationModal"
 import Pagination from "./Pagination"
+import useDebounce from "../hooks/useDebounce"
 
 export default function TicketListing() {
   const [tickets, setTickets] = useState<Ticket[]>([])
@@ -21,17 +24,24 @@ export default function TicketListing() {
   const [loading, setLoading] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [ticketToDelete, setTicketToDelete] = useState<string | null>(null)
+  const [searchText, setSearchText] = useState("")
+  const debouncedSearchText = useDebounce(searchText, 300) // 300ms delay
 
   useEffect(() => {
     fetchTickets()
-  }, [page, limit])
+  }, [page, limit, debouncedSearchText])
 
   const fetchTickets = async () => {
     try {
       setLoading(true)
-      const response = await getTickets(page, limit)
-      setTickets(response?.data?.tickets)
-      setTotal(response?.data?.total)
+      let response
+      if (debouncedSearchText) {
+        response = await searchTickets(debouncedSearchText, page, limit)
+      } else {
+        response = await getTickets(page, limit)
+      }
+      setTickets(response.data.tickets)
+      setTotal(response.data.total)
       setLoading(false)
     } catch (error) {
       console.error("Error fetching tickets:", error)
@@ -89,15 +99,50 @@ export default function TicketListing() {
     }
   }
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText(e.target.value)
+    setPage(1) // Reset to first page when searching
+  }
+
   return (
     <div>
       <Toaster position="top-center" />
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Tickets</h2>
-        <button onClick={handleCreateTicket} className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-          Create Ticket
-        </button>
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <input
+              type="text"
+              value={searchText}
+              onChange={handleSearchChange}
+              placeholder="Search tickets..."
+              className="px-3 py-2 border rounded-md pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {searchText && (
+              <button
+                onClick={() => setSearchText("")}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
+          <button
+            onClick={handleCreateTicket}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          >
+            Create Ticket
+          </button>
+        </div>
       </div>
+
+      <div className="mb-4 text-sm text-gray-600">Total records: {total}</div>
 
       {loading ? (
         <div className="flex justify-center items-center h-64">

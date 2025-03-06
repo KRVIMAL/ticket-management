@@ -77,3 +77,16 @@ export const addMessageToTicket = async (ticketId: string, message: TicketMessag
   }
 }
 
+export const searchTickets = async (
+  searchText: string,
+  page = 1,
+  limit = 10,
+): Promise<{ data: { tickets: Ticket[]; total: number } }> => {
+  try {
+    const response = await axios.get(`${API_URL}/search?searchText=${searchText}&page=${page}&limit=${limit}`)
+    return response.data
+  } catch (error) {
+    console.error("Error searching tickets:", error)
+    throw error
+  }
+}
