@@ -1,19 +1,20 @@
-import type React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import type {
   Ticket,
   TicketFormFields,
   TicketMessage,
   TicketStatus,
   TicketType,
+  User,
 } from '../../types/ticket';
 import {
   ticketTypeOptions,
   ticketStatusOptions,
-  customerIdOptions,
   generateTicketId,
 } from '../../helpers/ticket-helper';
-import { FiX, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { searchUsers } from '../services/ticket.service';
+import { FiX, FiEdit2, FiTrash2, FiSearch } from 'react-icons/fi';
+import useDebounce from '../../hooks/useDebounce';
 
 interface TicketModalProps {
   isOpenModal: boolean;
@@ -41,6 +42,18 @@ export function TicketModal({
   const [messageError, setMessageError] = useState('');
   const [commentByError, setCommentByError] = useState('');
   const [generalError, setGeneralError] = useState('');
+  
+  const [userSearchText, setUserSearchText] = useState('');
+  const debouncedSearchText = useDebounce(userSearchText, 300);
+  const [users, setUsers] = useState<User[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showUserResults, setShowUserResults] = useState(false);
+
+  useEffect(() => {
+    if (edit && formField.user.value) {
+      setUserSearchText(formField.user.value.fullName);
+    }
+  }, [edit, formField.user.value]);
 
   useEffect(() => {
     if (edit && formField.messages) {
@@ -50,11 +63,40 @@ export function TicketModal({
     }
   }, [edit, formField.messages]);
 
+  // Handle user search
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (debouncedSearchText.trim().length < 2) {
+        setUsers([]);
+        return;
+      }
+      
+      setIsSearching(true);
+      try {
+        const search = { fullName: debouncedSearchText };
+        const response = await searchUsers(1, 10, search);
+        if (response.success && response.data) {
+          setUsers(response.data);
+        } else {
+          setUsers([]);
+        }
+      } catch (error) {
+        console.error('Error searching users:', error);
+        setUsers([]);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    fetchUsers();
+  }, [debouncedSearchText]);
+
   const resetForm = () => {
     setFormField({
       ticketId: { value: '', error: '' },
       ticketType: { value: '', error: '' },
-      customerId: { value: '', error: '' },
+      user: { value: null, error: '' },
+      userEmail: { value: '', error: '' },
       ticketStatus: { value: '', error: '' },
       messages: [],
       newMessage: { value: '', error: '' },
@@ -66,6 +108,7 @@ export function TicketModal({
     setMessageError('');
     setCommentByError('');
     setGeneralError('');
+    setUserSearchText('');
   };
 
   const handleCloseModal = () => {
@@ -87,6 +130,22 @@ export function TicketModal({
         error: '',
       },
     });
+  };
+
+  const handleUserSelect = (user: User) => {
+    setFormField({
+      ...formField,
+      user: {
+        value: user,
+        error: '',
+      },
+      userEmail: {
+        value: user.email,
+        error: '',
+      },
+    });
+    setUserSearchText(user.fullName);
+    setShowUserResults(false);
   };
 
   const validateMessageFields = (): boolean => {
@@ -117,8 +176,8 @@ export function TicketModal({
       isValid = false;
     }
 
-    if (!formField.customerId.value) {
-      newFormField.customerId.error = 'Customer ID is required';
+    if (!formField.user.value) {
+      newFormField.user.error = 'User is required';
       isValid = false;
     }
 
@@ -180,11 +239,12 @@ export function TicketModal({
     if (!validateForm()) return;
 
     const ticketId = edit ? formField.ticketId.value : generateTicketId();
+    const userId = formField.user.value?._id || '';
 
     const newTicket: Ticket = {
       ticketId,
       ticketType: formField.ticketType.value as TicketType,
-      customerId: formField.customerId.value,
+      userId: userId,
       messages: messages,
       ticketStatus: formField.ticketStatus.value as TicketStatus,
     };
@@ -243,34 +303,6 @@ export function TicketModal({
 
             <div className="col-span-1">
               <label className="mb-1 block text-sm font-medium">
-                Customer ID <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="customerId"
-                value={formField?.customerId?.value}
-                onChange={handleOnChange}
-                className={`w-full rounded-md border p-2 ${
-                  formField?.customerId.error
-                    ? 'border-red-500'
-                    : 'border-gray-300'
-                }`}
-              >
-                <option value="">Select Customer ID</option>
-                {customerIdOptions?.map((option) => (
-                  <option key={option?.value} value={option?.value}>
-                    {option?.label}
-                  </option>
-                ))}
-              </select>
-              {formField?.customerId?.error && (
-                <p className="mt-1 text-xs text-red-500">
-                  {formField.customerId.error}
-                </p>
-              )}
-            </div>
-
-            <div className="col-span-1">
-              <label className="mb-1 block text-sm font-medium">
                 Status <span className="text-red-500">*</span>
               </label>
               <select
@@ -295,6 +327,84 @@ export function TicketModal({
                   {formField.ticketStatus.error}
                 </p>
               )}
+            </div>
+
+            <div className="col-span-2">
+              <label className="mb-1 block text-sm font-medium">
+                User <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={userSearchText}
+                  onChange={(e) => {
+                    setUserSearchText(e.target.value);
+                    setShowUserResults(true);
+                    if (!edit) {
+                      setFormField({
+                        ...formField,
+                        user: {
+                          value: null,
+                          error: '',
+                        },
+                        userEmail: {
+                          value: '',
+                          error: '',
+                        },
+                      });
+                    }
+                  }}
+                  placeholder="Search user by name"
+                  disabled={edit}
+                  className={`w-full rounded-md border p-2 ${
+                    formField?.user?.error
+                      ? 'border-red-500'
+                      : 'border-gray-300'
+                  }`}
+                  onFocus={() => setShowUserResults(true)}
+                />
+                {!edit && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400">
+                    <FiSearch />
+                  </span>
+                )}
+                {showUserResults && !edit && users.length > 0 && (
+                  <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-300 bg-white shadow-lg">
+                    {isSearching ? (
+                      <div className="p-2 text-center text-gray-500">Searching...</div>
+                    ) : (
+                      users.map((user) => (
+                        <div
+                          key={user._id}
+                          className="cursor-pointer p-2 hover:bg-gray-100"
+                          onClick={() => handleUserSelect(user)}
+                        >
+                          <div>{user.fullName}</div>
+                          <div className="text-xs text-gray-500">{user.email}</div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+              {formField?.user?.error && (
+                <p className="mt-1 text-xs text-red-500">
+                  {formField.user.error}
+                </p>
+              )}
+            </div>
+
+            <div className="col-span-2">
+              <label className="mb-1 block text-sm font-medium">
+                User Email
+              </label>
+              <input
+                type="email"
+                name="userEmail"
+                value={formField?.userEmail?.value}
+                readOnly
+                className="w-full rounded-md border border-gray-300 bg-gray-100 p-2"
+              />
             </div>
 
             <div className="col-span-2">

@@ -91,3 +91,25 @@ export const searchTickets = async (
     throw error;
   }
 };
+
+export const searchUsers = async (page = 1, limit = 10, search = {}) => {
+  try {
+    const response = await axios.post(
+      `http://165.22.215.163:8081/userservice/searchUser`,
+      {
+        page,
+        limit,
+        search,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-Key": localStorage.getItem("token") || "",
+        },
+      },
+    );
+    return response.data;
+  } catch (error: any) {
+    throw error.message;
+  }
+};

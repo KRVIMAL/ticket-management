@@ -1,8 +1,7 @@
-import type React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TicketModal } from './TicketModal';
 import { ticketInsertField } from '../../helpers/ticket-helper';
-import type { Ticket } from '../../types/ticket';
+import type { Ticket, User } from '../../types/ticket';
 import {
   getTickets,
   deleteTicket,
@@ -61,7 +60,12 @@ export default function TicketListing() {
   };
 
   const handleEditTicket = (ticket: Ticket) => {
-    setFormField(ticketInsertField(ticket));
+    const normalizedTicket = {
+      ...ticket,
+      user: typeof ticket.userId === 'object' ? ticket.userId : null
+    };
+    
+    setFormField(ticketInsertField(normalizedTicket));
     setIsEditing(true);
     setCurrentTicketId(ticket._id || null);
     setIsModalOpen(true);
@@ -172,6 +176,9 @@ export default function TicketListing() {
                   USER NAME
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Email
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Messages
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
@@ -190,7 +197,10 @@ export default function TicketListing() {
                     {ticket?.ticketType}
                   </td>
                   <td className="px-4 py-4 text-sm">
-                    {ticket?.customer?.fullName}
+                    {ticket?.userId?.fullName || 'N/A'}
+                  </td>
+                  <td className="px-4 py-4 text-sm">
+                    {ticket?.userId?.email || 'N/A'}
                   </td>
                   <td className="px-4 py-4 text-sm">
                     {ticket?.messages?.map((message: any, index: any) => (

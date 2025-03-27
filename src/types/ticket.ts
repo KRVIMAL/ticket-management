@@ -17,11 +17,18 @@ export interface TicketMessage {
   commentBy: string;
 }
 
+export interface User {
+  _id: string;
+  fullName: string;
+  email: string;
+}
+
 export interface Ticket {
   _id?: string;
   ticketId: string;
   ticketType: TicketType;
-  customerId: string;
+  userId: string | User; 
+  user?: User; 
   messages: TicketMessage[];
   ticketStatus: TicketStatus;
 }
@@ -34,7 +41,11 @@ export interface FormField {
 export interface TicketFormFields {
   ticketId: FormField;
   ticketType: FormField;
-  customerId: FormField;
+  user: {
+    value: User | null;
+    error: string;
+  };
+  userEmail: FormField;
   ticketStatus: FormField;
   messages: TicketMessage[];
   newMessage: FormField;

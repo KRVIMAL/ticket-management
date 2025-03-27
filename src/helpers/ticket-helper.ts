@@ -1,9 +1,8 @@
-// import type { TicketFormFields } from "../types/ticket"
-// import { TicketStatus, TicketType } from "../types/ticket"
-
-import { TicketFormFields, TicketStatus, TicketType } from '../types/ticket';
+import { TicketFormFields, TicketStatus, TicketType, User } from '../types/ticket';
 
 export const ticketInsertField = (data?: any): TicketFormFields => {
+  const userValue = typeof data?.userId === 'object' ? data?.userId : null;
+  
   return {
     ticketId: {
       value: data?.ticketId ?? '',
@@ -13,8 +12,12 @@ export const ticketInsertField = (data?: any): TicketFormFields => {
       value: data?.ticketType ?? '',
       error: '',
     },
-    customerId: {
-      value: data?.customerId ?? '',
+    user: {
+      value: userValue,
+      error: '',
+    },
+    userEmail: {
+      value: userValue?.email ?? '',
       error: '',
     },
     ticketStatus: {
@@ -40,13 +43,6 @@ export const ticketStatusOptions = [
   { value: TicketStatus.IN_PROGRESS, label: 'In Progress' },
   { value: TicketStatus.RESOLVED, label: 'Resolved' },
   { value: TicketStatus.CLOSED, label: 'Closed' },
-];
-
-export const customerIdOptions = [
-  { value: '1', label: 'Customer 1' },
-  { value: '2', label: 'Customer 2' },
-  { value: '3', label: 'Customer 3' },
-  { value: '4', label: 'Customer 4' },
 ];
 
 export const generateTicketId = (): string => {
