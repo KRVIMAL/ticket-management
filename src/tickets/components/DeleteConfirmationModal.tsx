@@ -1,4 +1,4 @@
-import type React from 'react';
+import React, { memo } from 'react';
 
 interface DeleteConfirmationModalProps {
   isOpen: boolean;
@@ -42,4 +42,4 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
   );
 };
 
-export default DeleteConfirmationModal;
+export default memo(DeleteConfirmationModal);

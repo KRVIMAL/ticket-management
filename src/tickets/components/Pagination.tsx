@@ -1,4 +1,4 @@
-import type React from 'react';
+import { memo, FC } from 'react';
 
 import {
   HiChevronLeft,
@@ -15,7 +15,7 @@ interface PaginationProps {
   onLimitChange: (limit: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({
+const Pagination: FC<PaginationProps> = ({
   currentPage,
   totalItems,
   limit,
@@ -119,4 +119,4 @@ const Pagination: React.FC<PaginationProps> = ({
   );
 };
 
-export default Pagination;
+export default memo(Pagination);

@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useEffect, useRef } from 'react';
+import _ from 'lodash';
 import type {
   Ticket,
   TicketFormFields,
@@ -14,7 +16,6 @@ import {
 } from '../../helpers/ticket-helper';
 import { searchUsers } from '../services/ticket.service';
 import { FiX, FiEdit2, FiTrash2, FiSearch } from 'react-icons/fi';
-import useDebounce from '../../hooks/useDebounce';
 
 interface TicketModalProps {
   isOpenModal: boolean;
@@ -25,14 +26,14 @@ interface TicketModalProps {
   edit: boolean;
 }
 
-export function TicketModal({
+export const TicketModal = ({
   isOpenModal,
   handleUpdateDialogClose,
   setFormField,
   formField,
   addTicketHandler,
   edit,
-}: TicketModalProps) {
+}: TicketModalProps) => {
   const [messages, setMessages] = useState<TicketMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [newCommentBy, setNewCommentBy] = useState('');
@@ -42,16 +43,29 @@ export function TicketModal({
   const [messageError, setMessageError] = useState('');
   const [commentByError, setCommentByError] = useState('');
   const [generalError, setGeneralError] = useState('');
-  
   const [userSearchText, setUserSearchText] = useState('');
-  const debouncedSearchText = useDebounce(userSearchText, 300);
+  const [debouncedSearchText, setDebouncedSearchText] = useState('');
   const [users, setUsers] = useState<User[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showUserResults, setShowUserResults] = useState(false);
 
+  const debouncedSearch = useRef(
+    _.debounce((text: string) => {
+      setDebouncedSearchText(text);
+    }, 500)
+  ).current;
+
+  // Clean up debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
+
   useEffect(() => {
     if (edit && formField.user.value) {
       setUserSearchText(formField.user.value.fullName);
+      setDebouncedSearchText(formField.user.value.fullName);
     }
   }, [edit, formField.user.value]);
 
@@ -70,7 +84,7 @@ export function TicketModal({
         setUsers([]);
         return;
       }
-      
+
       setIsSearching(true);
       try {
         const search = { fullName: debouncedSearchText };
@@ -338,7 +352,9 @@ export function TicketModal({
                   type="text"
                   value={userSearchText}
                   onChange={(e) => {
-                    setUserSearchText(e.target.value);
+                    const value = e.target.value;
+                    setUserSearchText(value);
+                    debouncedSearch(value);
                     setShowUserResults(true);
                     if (!edit) {
                       setFormField({
@@ -371,7 +387,9 @@ export function TicketModal({
                 {showUserResults && !edit && users.length > 0 && (
                   <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-300 bg-white shadow-lg">
                     {isSearching ? (
-                      <div className="p-2 text-center text-gray-500">Searching...</div>
+                      <div className="p-2 text-center text-gray-500">
+                        Searching...
+                      </div>
                     ) : (
                       users.map((user) => (
                         <div
@@ -380,7 +398,9 @@ export function TicketModal({
                           onClick={() => handleUserSelect(user)}
                         >
                           <div>{user.fullName}</div>
-                          <div className="text-xs text-gray-500">{user.email}</div>
+                          <div className="text-xs text-gray-500">
+                            {user.email}
+                          </div>
                         </div>
                       ))
                     )}
@@ -511,4 +531,4 @@ export function TicketModal({
       </div>
     </div>
   );
-}
+};

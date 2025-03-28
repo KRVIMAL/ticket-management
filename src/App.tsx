@@ -1,4 +1,4 @@
-import TicketListing from './tickets/components/TicketListing';
+import { TicketListing } from './tickets/components/TicketListing';
 import './App.css';
 
 function App() {

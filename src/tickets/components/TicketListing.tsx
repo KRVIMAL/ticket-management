@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
 import { TicketModal } from './TicketModal';
 import { ticketInsertField } from '../../helpers/ticket-helper';
-import type { Ticket, User } from '../../types/ticket';
+import type { Ticket } from '../../types/ticket';
+import { debounce } from 'lodash';
 import {
   getTickets,
   deleteTicket,
@@ -12,10 +14,9 @@ import {
 import toast, { Toaster } from 'react-hot-toast';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import Pagination from './Pagination';
-import useDebounce from '../../hooks/useDebounce';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
 
-export default function TicketListing() {
+export const TicketListing = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formField, setFormField] = useState(ticketInsertField());
@@ -28,26 +29,31 @@ export default function TicketListing() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [ticketToDelete, setTicketToDelete] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
-  const debouncedSearchText = useDebounce(searchText, 300); // 300ms delay
 
   useEffect(() => {
     fetchTickets();
-  }, [page, limit, debouncedSearchText]);
+  }, [page, limit, searchText]);
+
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, []);
 
   const fetchTickets = async () => {
     try {
       setLoading(true);
       let response;
-      if (debouncedSearchText) {
-        response = await searchTickets(debouncedSearchText, page, limit);
+      if (searchText) {
+        response = await searchTickets(searchText, page, limit);
       } else {
         response = await getTickets(page, limit);
       }
       setTickets(response.data.tickets);
       setTotal(response.data.total);
       setLoading(false);
-    } catch (error) {
-      toast.error('Failed to fetch tickets');
+    } catch (error: any) {
+      toast.error(error.message);
       setLoading(false);
     }
   };
@@ -62,9 +68,9 @@ export default function TicketListing() {
   const handleEditTicket = (ticket: Ticket) => {
     const normalizedTicket = {
       ...ticket,
-      user: typeof ticket.userId === 'object' ? ticket.userId : null
+      user: typeof ticket.userId === 'object' ? ticket.userId : null,
     };
-    
+
     setFormField(ticketInsertField(normalizedTicket));
     setIsEditing(true);
     setCurrentTicketId(ticket._id || null);
@@ -84,8 +90,8 @@ export default function TicketListing() {
           tickets?.filter((ticket: any) => ticket._id !== ticketToDelete)
         );
         toast.success('Ticket deleted successfully');
-      } catch (error) {
-        toast.error('Failed to delete ticket');
+      } catch (error: any) {
+        toast.error(error.message);
       }
     }
     setIsDeleteModalOpen(false);
@@ -112,6 +118,10 @@ export default function TicketListing() {
     setPage(1);
   };
 
+  const debouncedSearch = debounce((value) => {
+    handleSearchChange(value);
+  }, 300);
+
   return (
     <div>
       <Toaster position="top-center" />
@@ -122,7 +132,10 @@ export default function TicketListing() {
             <input
               type="text"
               value={searchText}
-              onChange={handleSearchChange}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+                debouncedSearch(e.target.value);
+              }}
               placeholder="Search tickets..."
               className="rounded-md border px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -191,7 +204,7 @@ export default function TicketListing() {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {tickets?.map((ticket: any) => (
-                <tr key={ticket?.ticketId} className="hover:bg-gray-50">
+                <tr key={ticket?._id} className="hover:bg-gray-50">
                   <td className="px-4 py-4 text-sm">{ticket?.ticketId}</td>
                   <td className="px-4 py-4 text-sm capitalize">
                     {ticket?.ticketType}
@@ -276,9 +289,9 @@ export default function TicketListing() {
               toast.success('Ticket created successfully');
             }
             setIsModalOpen(false);
-            fetchTickets();
-          } catch (error) {
-            toast.error('Failed to save ticket');
+            await fetchTickets();
+          } catch (error: any) {
+            toast.error(error.message);
           }
         }}
         edit={isEditing}
@@ -291,4 +304,4 @@ export default function TicketListing() {
       />
     </div>
   );
-}
+};

@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 import { Ticket, TicketMessage } from '../../types/ticket';
-const API_URL = 'http://localhost:3000/tickets';
+import { getEnvironment } from '../../helpers/ticket-helper';
+const API_URL = getEnvironment(import.meta.env.VITE_API_ENV);
 
 export const getTickets = async (
   page = 1,
@@ -18,8 +20,8 @@ export const getTickets = async (
 
     const response = await axios.get(`${API_URL}?${params.toString()}`);
     return response.data;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw new Error(error.message);
   }
 };
 
@@ -27,8 +29,8 @@ export const getTicketById = async (id: string): Promise<Ticket> => {
   try {
     const response = await axios.get(`${API_URL}/${id}`);
     return response.data;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw new Error(error.message);
   }
 };
 
@@ -38,8 +40,8 @@ export const createTicket = async (
   try {
     const response = await axios.post(API_URL, ticketData);
     return response.data;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw new Error(error.message);
   }
 };
 
@@ -50,16 +52,16 @@ export const updateTicket = async (
   try {
     const response = await axios.put(`${API_URL}/${id}`, updatedData);
     return response.data;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw new Error(error.message);
   }
 };
 
 export const deleteTicket = async (id: string): Promise<void> => {
   try {
     await axios.delete(`${API_URL}/${id}`);
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw new Error(error.message);
   }
 };
 
@@ -72,8 +74,8 @@ export const addMessageToTicket = async (
       messages: [message],
     });
     return response.data;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw new Error(error.message);
   }
 };
 
@@ -87,15 +89,15 @@ export const searchTickets = async (
       `${API_URL}/search?searchText=${searchText}&page=${page}&limit=${limit}`
     );
     return response.data;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw new Error(error.message);
   }
 };
 
 export const searchUsers = async (page = 1, limit = 10, search = {}) => {
   try {
     const response = await axios.post(
-      `http://165.22.215.163:8081/userservice/searchUser`,
+      import.meta.env.VITE_API_USER_API_URL,
       {
         page,
         limit,
@@ -103,10 +105,10 @@ export const searchUsers = async (page = 1, limit = 10, search = {}) => {
       },
       {
         headers: {
-          "Content-Type": "application/json",
-          "X-API-Key": localStorage.getItem("token") || "",
+          'Content-Type': 'application/json',
+          'X-API-Key': localStorage.getItem('token') || '',
         },
-      },
+      }
     );
     return response.data;
   } catch (error: any) {
