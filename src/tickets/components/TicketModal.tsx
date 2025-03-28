@@ -15,7 +15,8 @@ import {
   generateTicketId,
 } from '../../helpers/ticket-helper';
 import { searchUsers } from '../services/ticket.service';
-import { FiX, FiEdit2, FiTrash2, FiSearch } from 'react-icons/fi';
+import { FiX, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 
 interface TicketModalProps {
   isOpenModal: boolean;
@@ -36,38 +37,49 @@ export const TicketModal = ({
 }: TicketModalProps) => {
   const [messages, setMessages] = useState<TicketMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [newCommentBy, setNewCommentBy] = useState('');
-  const [editingMessageIndex, setEditingMessageIndex] = useState<number | null>(
-    null
-  );
+  const [editingMessageIndex, setEditingMessageIndex] = useState<number | null>(null);
   const [messageError, setMessageError] = useState('');
-  const [commentByError, setCommentByError] = useState('');
-  const [generalError, setGeneralError] = useState('');
-  const [userSearchText, setUserSearchText] = useState('');
-  const [debouncedSearchText, setDebouncedSearchText] = useState('');
+  const [generalError, setGeneralError] = useState('');  
   const [users, setUsers] = useState<User[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [showUserResults, setShowUserResults] = useState(false);
-
-  const debouncedSearch = useRef(
-    _.debounce((text: string) => {
-      setDebouncedSearchText(text);
-    }, 500)
-  ).current;
-
-  // Clean up debounce on unmount
-  useEffect(() => {
-    return () => {
-      debouncedSearch.cancel();
-    };
-  }, [debouncedSearch]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{_id: string, fullName: string} | null>(null);
 
   useEffect(() => {
-    if (edit && formField.user.value) {
-      setUserSearchText(formField.user.value.fullName);
-      setDebouncedSearchText(formField.user.value.fullName);
+    try {
+      const imzClientData = localStorage.getItem('imzClient');
+      if (imzClientData) {
+        const parsedData = JSON.parse(imzClientData);
+        if (parsedData.userData) {
+          setCurrentUser({
+            _id: parsedData.userData._id,
+            fullName: parsedData.userData.fullName
+          });
+        }
+      } 
+    } catch (error) {
+      console.error('Error getting user data:', error);
     }
-  }, [edit, formField.user.value]);
+  }, []); 
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setIsLoading(true);
+        const response = await searchUsers(1, 10, {});
+        if (response.success && response.data) {
+          setUsers(response.data);
+        }
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        setIsLoading(false);
+      }
+    };
+
+    if (!edit) {
+      fetchUsers();
+    }
+  }, [edit]);
 
   useEffect(() => {
     if (edit && formField.messages) {
@@ -76,34 +88,6 @@ export const TicketModal = ({
       setMessages([]);
     }
   }, [edit, formField.messages]);
-
-  // Handle user search
-  useEffect(() => {
-    const fetchUsers = async () => {
-      if (debouncedSearchText.trim().length < 2) {
-        setUsers([]);
-        return;
-      }
-
-      setIsSearching(true);
-      try {
-        const search = { fullName: debouncedSearchText };
-        const response = await searchUsers(1, 10, search);
-        if (response.success && response.data) {
-          setUsers(response.data);
-        } else {
-          setUsers([]);
-        }
-      } catch (error) {
-        console.error('Error searching users:', error);
-        setUsers([]);
-      } finally {
-        setIsSearching(false);
-      }
-    };
-
-    fetchUsers();
-  }, [debouncedSearchText]);
 
   const resetForm = () => {
     setFormField({
@@ -117,12 +101,9 @@ export const TicketModal = ({
     });
     setMessages([]);
     setNewMessage('');
-    setNewCommentBy('');
     setEditingMessageIndex(null);
     setMessageError('');
-    setCommentByError('');
     setGeneralError('');
-    setUserSearchText('');
   };
 
   const handleCloseModal = () => {
@@ -158,22 +139,19 @@ export const TicketModal = ({
         error: '',
       },
     });
-    setUserSearchText(user.fullName);
-    setShowUserResults(false);
   };
 
   const validateMessageFields = (): boolean => {
     let isValid = true;
     setMessageError('');
-    setCommentByError('');
 
     if (!newMessage.trim()) {
       setMessageError('Message is required');
       isValid = false;
     }
 
-    if (!newCommentBy.trim()) {
-      setCommentByError('Comment by is required');
+    if (!currentUser) {
+      toast.error('User information not found. Please log in again.');
       isValid = false;
     }
 
@@ -205,26 +183,26 @@ export const TicketModal = ({
   };
 
   const handleAddMessage = () => {
-    if (validateMessageFields()) {
+    if (validateMessageFields() && currentUser) {
       if (editingMessageIndex !== null) {
         const updatedMessages = [...messages];
         updatedMessages[editingMessageIndex] = {
           ...updatedMessages[editingMessageIndex],
           comments: newMessage,
-          commentBy: newCommentBy,
         };
         setMessages(updatedMessages);
         setEditingMessageIndex(null);
       } else {
         setMessages([
           ...messages,
-          { comments: newMessage, commentBy: newCommentBy },
+          { 
+            comments: newMessage, 
+            commentBy: currentUser.fullName 
+          },
         ]);
       }
       setNewMessage('');
-      setNewCommentBy('');
       setMessageError('');
-      setCommentByError('');
       setGeneralError('');
     }
   };
@@ -232,10 +210,8 @@ export const TicketModal = ({
   const handleEditMessage = (index: number) => {
     const messageToEdit = messages[index];
     setNewMessage(messageToEdit.comments);
-    setNewCommentBy(messageToEdit.commentBy);
     setEditingMessageIndex(index);
     setMessageError('');
-    setCommentByError('');
   };
 
   const handleRemoveMessage = (index: number) => {
@@ -243,14 +219,12 @@ export const TicketModal = ({
     if (editingMessageIndex === index) {
       setEditingMessageIndex(null);
       setNewMessage('');
-      setNewCommentBy('');
       setMessageError('');
-      setCommentByError('');
     }
   };
 
   const handleSubmit = () => {
-    if (!validateForm()) return;
+    if (!validateForm() || !currentUser) return;
 
     const ticketId = edit ? formField.ticketId.value : generateTicketId();
     const userId = formField.user.value?._id || '';
@@ -347,66 +321,34 @@ export const TicketModal = ({
               <label className="mb-1 block text-sm font-medium">
                 User <span className="text-red-500">*</span>
               </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={userSearchText}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setUserSearchText(value);
-                    debouncedSearch(value);
-                    setShowUserResults(true);
-                    if (!edit) {
-                      setFormField({
-                        ...formField,
-                        user: {
-                          value: null,
-                          error: '',
-                        },
-                        userEmail: {
-                          value: '',
-                          error: '',
-                        },
-                      });
-                    }
-                  }}
-                  placeholder="Search user by name"
-                  disabled={edit}
-                  className={`w-full rounded-md border p-2 ${
-                    formField?.user?.error
-                      ? 'border-red-500'
-                      : 'border-gray-300'
-                  }`}
-                  onFocus={() => setShowUserResults(true)}
-                />
-                {!edit && (
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400">
-                    <FiSearch />
-                  </span>
+              <select
+                name="user"
+                value={formField.user.value?._id || ""}
+                onChange={(e) => {
+                  const selectedUserId = e.target.value;
+                  const selectedUser = users.find(u => u._id === selectedUserId);
+                  if (selectedUser) {
+                    handleUserSelect(selectedUser);
+                  }
+                }}
+                disabled={edit}
+                className={`w-full rounded-md border p-2 ${
+                  formField?.user?.error
+                    ? 'border-red-500'
+                    : 'border-gray-300'
+                }`}
+              >
+                <option value="">Select User</option>
+                {isLoading ? (
+                  <option value="" disabled>Loading users...</option>
+                ) : (
+                  users?.map((user) => (
+                    <option key={user._id} value={user._id}>
+                      {user.fullName}
+                    </option>
+                  ))
                 )}
-                {showUserResults && !edit && users.length > 0 && (
-                  <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-300 bg-white shadow-lg">
-                    {isSearching ? (
-                      <div className="p-2 text-center text-gray-500">
-                        Searching...
-                      </div>
-                    ) : (
-                      users.map((user) => (
-                        <div
-                          key={user._id}
-                          className="cursor-pointer p-2 hover:bg-gray-100"
-                          onClick={() => handleUserSelect(user)}
-                        >
-                          <div>{user.fullName}</div>
-                          <div className="text-xs text-gray-500">
-                            {user.email}
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                )}
-              </div>
+              </select>
               {formField?.user?.error && (
                 <p className="mt-1 text-xs text-red-500">
                   {formField.user.error}
@@ -432,7 +374,7 @@ export const TicketModal = ({
               {messages?.map((message: any, index: any) => (
                 <div key={index} className="mb-2 flex items-center">
                   <p className="flex-grow">
-                    {message?.comments} - By: {message?.commentBy}
+                    {message?.comments} -Comment By: {message?.commentBy}
                   </p>
                   <div className="flex space-x-2">
                     <button
@@ -452,57 +394,37 @@ export const TicketModal = ({
                   </div>
                 </div>
               ))}
-              <div className="space-y-2">
-                <div className="flex space-x-2">
-                  <div className="flex-grow">
-                    <label className="mb-1 block text-sm font-medium">
-                      New Message <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={newMessage}
-                      onChange={(e: any) => {
-                        setNewMessage(e?.target?.value);
-                        setMessageError('');
-                      }}
-                      placeholder="Enter new message"
-                      className={`w-full rounded-md border p-2 ${messageError ? 'border-red-500' : 'border-gray-300'}`}
-                    />
-                    {messageError && (
-                      <p className="mt-1 text-xs text-red-500">
-                        {messageError}
-                      </p>
-                    )}
-                  </div>
-                  <div className="w-1/3">
-                    <label className="mb-1 block text-sm font-medium">
-                      Comment By <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={newCommentBy}
-                      onChange={(e: any) => {
-                        setNewCommentBy(e?.target?.value);
-                        setCommentByError('');
-                      }}
-                      placeholder="Enter your staff ID"
-                      className={`w-full rounded-md border p-2 ${
-                        commentByError ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                    />
-                    {commentByError && (
-                      <p className="mt-1 text-xs text-red-500">
-                        {commentByError}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex items-end">
-                    <button
-                      onClick={handleAddMessage}
-                      className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-                    >
-                      {editingMessageIndex !== null ? 'Update' : 'Add'}
-                    </button>
+              <div className="mt-3 space-y-2">
+                <div>
+                  <label className="mb-1 block text-sm font-medium">
+                    New Message <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex space-x-2">
+                    <div className="flex-grow">
+                      <input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e: any) => {
+                          setNewMessage(e?.target?.value);
+                          setMessageError('');
+                        }}
+                        placeholder="Enter new message"
+                        className={`w-full rounded-md border p-2 ${messageError ? 'border-red-500' : 'border-gray-300'}`}
+                      />
+                      {messageError && (
+                        <p className="mt-1 text-xs text-red-500">
+                          {messageError}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-end">
+                      <button
+                        onClick={handleAddMessage}
+                        className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+                      >
+                        {editingMessageIndex !== null ? 'Update' : 'Add'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

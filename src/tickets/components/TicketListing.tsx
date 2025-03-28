@@ -53,7 +53,7 @@ export const TicketListing = () => {
       setTotal(response.data.total);
       setLoading(false);
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message || 'Failed to fetch tickets');
       setLoading(false);
     }
   };
@@ -91,7 +91,7 @@ export const TicketListing = () => {
         );
         toast.success('Ticket deleted successfully');
       } catch (error: any) {
-        toast.error(error.message);
+        toast.error(error.message || 'Failed to delete ticket');
       }
     }
     setIsDeleteModalOpen(false);
@@ -220,7 +220,7 @@ export const TicketListing = () => {
                       <div key={index} className={index > 0 ? 'mt-2' : ''}>
                         <p>{message.comments}</p>
                         <p className="text-xs text-gray-500">
-                          By: {message.commentBy}
+                          Comment By: {message.commentBy}
                         </p>
                       </div>
                     ))}
@@ -291,7 +291,7 @@ export const TicketListing = () => {
             setIsModalOpen(false);
             await fetchTickets();
           } catch (error: any) {
-            toast.error(error.message);
+            toast.error(error.message || 'Failed to save ticket');
           }
         }}
         edit={isEditing}
