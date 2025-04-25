@@ -16,7 +16,7 @@ import DeleteConfirmationModal from './DeleteConfirmationModal';
 import Pagination from './Pagination';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
 
-export const TicketListing = () => {
+export const TicketTable = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formField, setFormField] = useState(ticketInsertField());

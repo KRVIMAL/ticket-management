@@ -1,4 +1,4 @@
-import { TicketListing } from './tickets/components/TicketListing';
+import { TicketTable } from './tickets/components/TicketTable';
 import './App.css';
 
 function App() {
@@ -7,7 +7,7 @@ function App() {
       <h1 className="mb-6 text-3xl font-bold text-gray-800">
         Ticket Management System
       </h1>
-      <TicketListing />
+      <TicketTable />
     </div>
   );
 }
