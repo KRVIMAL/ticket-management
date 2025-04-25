@@ -15,34 +15,37 @@ import {
   generateTicketId,
 } from '../../helpers/ticket-helper';
 import { searchUsers } from '../services/ticket.service';
-import { FiX, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiTrash2, FiEdit2 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
-interface TicketModalProps {
-  isOpenModal: boolean;
-  handleUpdateDialogClose: () => void;
+interface TicketFormProps {
   setFormField: (formField: TicketFormFields) => void;
   formField: TicketFormFields;
   addTicketHandler: (ticket: Ticket) => void;
   edit: boolean;
+  onCancel: () => void;
 }
 
-export const TicketModal = ({
-  isOpenModal,
-  handleUpdateDialogClose,
+export const TicketForm = ({
   setFormField,
   formField,
   addTicketHandler,
   edit,
-}: TicketModalProps) => {
+  onCancel,
+}: TicketFormProps) => {
   const [messages, setMessages] = useState<TicketMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [editingMessageIndex, setEditingMessageIndex] = useState<number | null>(null);
+  const [editingMessageIndex, setEditingMessageIndex] = useState<number | null>(
+    null
+  );
   const [messageError, setMessageError] = useState('');
-  const [generalError, setGeneralError] = useState('');  
+  const [generalError, setGeneralError] = useState('');
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentUser, setCurrentUser] = useState<{_id: string, fullName: string} | null>(null);
+  const [currentUser, setCurrentUser] = useState<{
+    _id: string;
+    fullName: string;
+  } | null>(null);
 
   useEffect(() => {
     try {
@@ -52,14 +55,14 @@ export const TicketModal = ({
         if (parsedData.userData) {
           setCurrentUser({
             _id: parsedData.userData._id,
-            fullName: parsedData.userData.fullName
+            fullName: parsedData.userData.fullName,
           });
         }
-      } 
+      }
     } catch (error) {
       console.error('Error getting user data:', error);
     }
-  }, []); 
+  }, []);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -106,9 +109,9 @@ export const TicketModal = ({
     setGeneralError('');
   };
 
-  const handleCloseModal = () => {
+  const handleCancel = () => {
     resetForm();
-    handleUpdateDialogClose();
+    onCancel();
   };
 
   const handleOnChange = (
@@ -195,9 +198,9 @@ export const TicketModal = ({
       } else {
         setMessages([
           ...messages,
-          { 
-            comments: newMessage, 
-            commentBy: currentUser.fullName 
+          {
+            comments: newMessage,
+            commentBy: currentUser.fullName,
           },
         ]);
       }
@@ -224,7 +227,7 @@ export const TicketModal = ({
   };
 
   const handleSubmit = () => {
-    if (!validateForm() || !currentUser) return;
+    if (!validateForm()) return;
 
     const ticketId = edit ? formField.ticketId.value : generateTicketId();
     const userId = formField.user.value?._id || '';
@@ -241,141 +244,318 @@ export const TicketModal = ({
     resetForm();
   };
 
-  if (!isOpenModal) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded-lg bg-white">
-        <div className="p-6">
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-xl font-bold">
-              {edit ? 'Update Ticket' : 'Create Ticket'}
-            </h2>
-            <button
-              onClick={handleUpdateDialogClose}
-              className="text-gray-500 hover:text-gray-700"
-              title="Close"
-            >
-              <FiX className="h-6 w-6" />
-            </button>
-          </div>
+    <div
+      className="container mx-auto p-4"
+      style={{ fontFamily: 'Montserrat, sans-serif' }}
+    >
+      <h1
+        style={{
+          fontFamily: 'Montserrat, sans-serif',
+          fontWeight: 700,
+          fontSize: '18px',
+          marginBottom: '24px',
+        }}
+      >
+        {edit ? 'Update Ticket' : 'Create Ticket'}
+      </h1>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="col-span-1">
-              <label className="mb-1 block text-sm font-medium">
-                Ticket Type <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="ticketType"
-                value={formField?.ticketType?.value}
-                onChange={handleOnChange}
-                className={`w-full rounded-md border p-2 ${
-                  formField?.ticketType?.error
-                    ? 'border-red-500'
-                    : 'border-gray-300'
-                }`}
-              >
-                <option value="">Select Ticket Type</option>
-                {ticketTypeOptions?.map((option: any) => (
-                  <option key={option?.value} value={option?.value}>
-                    {option?.label}
-                  </option>
-                ))}
-              </select>
-              {formField?.ticketType?.error && (
-                <p className="mt-1 text-xs text-red-500">
-                  {formField?.ticketType.error}
-                </p>
-              )}
-            </div>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* Row 1: Ticket Type and Status */}
+        <div>
+          <label
+            style={{
+              fontFamily: 'Montserrat, sans-serif',
+              fontWeight: 500,
+              fontSize: '14px',
+              lineHeight: '100%',
+              color: '#2B2B2B',
+              marginBottom: '8px',
+              display: 'block',
+            }}
+          >
+            Ticket Type *
+          </label>
+          <select
+            name="ticketType"
+            value={formField?.ticketType?.value}
+            onChange={handleOnChange}
+            style={{
+              width: '100%',
+              height: '38px',
+              borderRadius: '10px',
+              border: '1px solid #C2C2C2',
+              padding: '0 12px',
+              fontFamily: 'Montserrat, sans-serif',
+              fontWeight: 500,
+              fontSize: '14px',
+              color: formField?.ticketType?.value ? '#000000' : '#8E8E8E',
+            }}
+            className={formField?.ticketType?.error ? 'border-red-500' : ''}
+          >
+            <option value="">Select ticket type</option>
+            {ticketTypeOptions?.map((option: any) => (
+              <option key={option?.value} value={option?.value}>
+                {option?.label}
+              </option>
+            ))}
+          </select>
+          {formField?.ticketType?.error && (
+            <p className="mt-1 text-xs text-red-500">
+              {formField?.ticketType.error}
+            </p>
+          )}
+        </div>
 
-            <div className="col-span-1">
-              <label className="mb-1 block text-sm font-medium">
-                Status <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="ticketStatus"
-                value={formField?.ticketStatus?.value}
-                onChange={handleOnChange}
-                className={`w-full rounded-md border p-2 ${
-                  formField?.ticketStatus?.error
-                    ? 'border-red-500'
-                    : 'border-gray-300'
-                }`}
-              >
-                <option value="">Select Status</option>
-                {ticketStatusOptions?.map((option: any) => (
-                  <option key={option?.value} value={option?.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              {formField?.ticketStatus?.error && (
-                <p className="mt-1 text-xs text-red-500">
-                  {formField.ticketStatus.error}
-                </p>
-              )}
-            </div>
+        <div>
+          <label
+            style={{
+              fontFamily: 'Montserrat, sans-serif',
+              fontWeight: 500,
+              fontSize: '14px',
+              lineHeight: '100%',
+              color: '#2B2B2B',
+              marginBottom: '8px',
+              display: 'block',
+            }}
+          >
+            Status *
+          </label>
+          <select
+            name="ticketStatus"
+            value={formField?.ticketStatus?.value}
+            onChange={handleOnChange}
+            style={{
+              width: '100%',
+              height: '38px',
+              borderRadius: '10px',
+              border: '1px solid #C2C2C2',
+              padding: '0 12px',
+              fontFamily: 'Montserrat, sans-serif',
+              fontWeight: 500,
+              fontSize: '14px',
+              color: formField?.ticketStatus?.value ? '#000000' : '#8E8E8E',
+            }}
+            className={formField?.ticketStatus?.error ? 'border-red-500' : ''}
+          >
+            <option value="">Select status</option>
+            {ticketStatusOptions?.map((option: any) => (
+              <option key={option?.value} value={option?.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          {formField?.ticketStatus?.error && (
+            <p className="mt-1 text-xs text-red-500">
+              {formField.ticketStatus.error}
+            </p>
+          )}
+        </div>
 
-            <div className="col-span-2">
-              <label className="mb-1 block text-sm font-medium">
-                User <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="user"
-                value={formField.user.value?._id || ""}
-                onChange={(e) => {
-                  const selectedUserId = e.target.value;
-                  const selectedUser = users.find(u => u._id === selectedUserId);
-                  if (selectedUser) {
-                    handleUserSelect(selectedUser);
-                  }
+        {/* Row 2: User Name and Email */}
+        <div>
+          <label
+            style={{
+              fontFamily: 'Montserrat, sans-serif',
+              fontWeight: 500,
+              fontSize: '14px',
+              lineHeight: '100%',
+              color: '#2B2B2B',
+              marginBottom: '8px',
+              display: 'block',
+            }}
+          >
+            User *
+          </label>
+          <select
+            name="user"
+            value={formField.user.value?._id || ''}
+            onChange={(e) => {
+              const selectedUserId = e.target.value;
+              const selectedUser = users.find((u) => u._id === selectedUserId);
+              if (selectedUser) {
+                handleUserSelect(selectedUser);
+              }
+            }}
+            disabled={edit}
+            style={{
+              width: '100%',
+              height: '38px',
+              borderRadius: '10px',
+              border: '1px solid #C2C2C2',
+              padding: '0 12px',
+              fontFamily: 'Montserrat, sans-serif',
+              fontWeight: 500,
+              fontSize: '14px',
+              color: formField.user.value ? '#000000' : '#8E8E8E',
+            }}
+            className={formField?.user?.error ? 'border-red-500' : ''}
+          >
+            <option value="">Select user</option>
+            {isLoading ? (
+              <option value="" disabled>
+                Loading users...
+              </option>
+            ) : (
+              users?.map((user) => (
+                <option key={user._id} value={user._id}>
+                  {user.fullName}
+                </option>
+              ))
+            )}
+          </select>
+          {formField?.user?.error && (
+            <p className="mt-1 text-xs text-red-500">{formField.user.error}</p>
+          )}
+        </div>
+
+        <div>
+          <label
+            style={{
+              fontFamily: 'Montserrat, sans-serif',
+              fontWeight: 500,
+              fontSize: '14px',
+              lineHeight: '100%',
+              color: '#2B2B2B',
+              marginBottom: '8px',
+              display: 'block',
+            }}
+          >
+            Email *
+          </label>
+          <input
+            type="email"
+            name="userEmail"
+            value={formField?.userEmail?.value}
+            readOnly
+            style={{
+              width: '100%',
+              height: '38px',
+              borderRadius: '10px',
+              border: '1px solid #C2C2C2',
+              padding: '0 12px',
+              fontFamily: 'Montserrat, sans-serif',
+              fontWeight: 500,
+              fontSize: '14px',
+              color: '#000000',
+              backgroundColor: '#f5f5f5',
+            }}
+          />
+        </div>
+
+        {/* Row 3: Messages section */}
+        <div className="md:col-span-2">
+          <h2
+            style={{
+              fontFamily: 'Montserrat, sans-serif',
+              fontWeight: 700,
+              fontSize: '18px',
+              marginTop: '16px',
+              marginBottom: '16px',
+            }}
+          >
+            Messages
+          </h2>
+
+          <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label
+                style={{
+                  fontFamily: 'Montserrat, sans-serif',
+                  fontWeight: 500,
+                  fontSize: '14px',
+                  lineHeight: '100%',
+                  color: '#2B2B2B',
+                  marginBottom: '8px',
+                  display: 'block',
                 }}
-                disabled={edit}
-                className={`w-full rounded-md border p-2 ${
-                  formField?.user?.error
-                    ? 'border-red-500'
-                    : 'border-gray-300'
-                }`}
               >
-                <option value="">Select User</option>
-                {isLoading ? (
-                  <option value="" disabled>Loading users...</option>
-                ) : (
-                  users?.map((user) => (
-                    <option key={user._id} value={user._id}>
-                      {user.fullName}
-                    </option>
-                  ))
-                )}
-              </select>
-              {formField?.user?.error && (
-                <p className="mt-1 text-xs text-red-500">
-                  {formField.user.error}
-                </p>
-              )}
-            </div>
-
-            <div className="col-span-2">
-              <label className="mb-1 block text-sm font-medium">
-                User Email
+                New Message *
               </label>
               <input
-                type="email"
-                name="userEmail"
-                value={formField?.userEmail?.value}
-                readOnly
-                className="w-full rounded-md border border-gray-300 bg-gray-100 p-2"
+                type="text"
+                value={newMessage}
+                onChange={(e) => {
+                  setNewMessage(e.target.value);
+                  setMessageError('');
+                }}
+                placeholder="Enter new message"
+                style={{
+                  width: '100%',
+                  height: '38px',
+                  borderRadius: '10px',
+                  border: '1px solid #C2C2C2',
+                  padding: '0 12px',
+                  fontFamily: 'Montserrat, sans-serif',
+                  fontWeight: 500,
+                  fontSize: '14px',
+                  color: '#000000',
+                }}
+                className={messageError ? 'border-red-500' : ''}
               />
+              {messageError && (
+                <p className="mt-1 text-xs text-red-500">{messageError}</p>
+              )}
+               <div className="flex items-end">
+              <button
+                onClick={handleAddMessage}
+                className="h-[38px] w-[114px] rounded-[10px] bg-[#187CFF] px-4 text-white"
+                style={{
+                  fontFamily: 'Montserrat, sans-serif',
+                  fontWeight: 500,
+                  fontSize: '16px',
+                  lineHeight: '100%',
+                  marginTop:"8px"
+                }}
+              >
+                Add
+              </button>
+            </div>
             </div>
 
-            <div className="col-span-2">
-              <label className="mb-1 block text-sm font-medium">Messages</label>
+           
+          </div>
+
+          {/* Messages list */}
+          {messages.length > 0 && (
+            <div className="mb-6 mt-4 rounded-lg border border-gray-200 p-4">
+              <h3
+                style={{
+                  fontFamily: 'Montserrat, sans-serif',
+                  fontWeight: 600,
+                  fontSize: '14px',
+                  marginBottom: '12px',
+                }}
+              >
+                Added Messages
+              </h3>
+
               {messages?.map((message: any, index: any) => (
-                <div key={index} className="mb-2 flex items-center">
-                  <p className="flex-grow">
-                    {message?.comments} -Comment By: {message?.commentBy}
-                  </p>
+                <div
+                  key={index}
+                  className="mb-2 flex items-center justify-between border-b border-gray-100 pb-2"
+                >
+                  <div>
+                    <p
+                      style={{
+                        fontFamily: 'Montserrat, sans-serif',
+                        fontWeight: 500,
+                        fontSize: '14px',
+                      }}
+                    >
+                      {message?.comments}
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: 'Montserrat, sans-serif',
+                        fontWeight: 400,
+                        fontSize: '12px',
+                        color: '#666',
+                      }}
+                    >
+                      By: {message?.commentBy}
+                    </p>
+                  </div>
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleEditMessage(index)}
@@ -394,63 +574,52 @@ export const TicketModal = ({
                   </div>
                 </div>
               ))}
-              <div className="mt-3 space-y-2">
-                <div>
-                  <label className="mb-1 block text-sm font-medium">
-                    New Message <span className="text-red-500">*</span>
-                  </label>
-                  <div className="flex space-x-2">
-                    <div className="flex-grow">
-                      <input
-                        type="text"
-                        value={newMessage}
-                        onChange={(e: any) => {
-                          setNewMessage(e?.target?.value);
-                          setMessageError('');
-                        }}
-                        placeholder="Enter new message"
-                        className={`w-full rounded-md border p-2 ${messageError ? 'border-red-500' : 'border-gray-300'}`}
-                      />
-                      {messageError && (
-                        <p className="mt-1 text-xs text-red-500">
-                          {messageError}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex items-end">
-                      <button
-                        onClick={handleAddMessage}
-                        className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-                      >
-                        {editingMessageIndex !== null ? 'Update' : 'Add'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
-
-          {generalError && (
-            <p className="mt-4 text-sm text-red-500">{generalError}</p>
           )}
 
-          <div className="mt-6 flex justify-end space-x-4">
-            <button
-              onClick={handleCloseModal}
-              className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-100"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSubmit}
-              className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-            >
-              {edit ? 'Update' : 'Create'}
-            </button>
-          </div>
+          {generalError && (
+            <p className="mb-4 text-sm text-red-500">{generalError}</p>
+          )}
         </div>
+      </div>
+
+      {/* Action buttons */}
+      <div className="mt-8 flex justify-end space-x-4">
+        <button
+          onClick={handleCancel}
+          style={{
+            width: '114px',
+            height: '46px',
+            borderRadius: '10px',
+            backgroundColor: '#D7D7D7',
+            color: '#626262',
+            fontFamily: 'Montserrat, sans-serif',
+            fontWeight: 500,
+            fontSize: '16px',
+            lineHeight: '100%',
+          }}
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleSubmit}
+          style={{
+            width: '114px',
+            height: '46px',
+            borderRadius: '10px',
+            backgroundColor: '#187CFF',
+            color: '#FFFFFF',
+            fontFamily: 'Montserrat, sans-serif',
+            fontWeight: 500,
+            fontSize: '16px',
+            lineHeight: '100%',
+          }}
+        >
+          {edit ? 'Update' : 'Create'}
+        </button>
       </div>
     </div>
   );
 };
+
+export default TicketForm;

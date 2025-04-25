@@ -2,8 +2,6 @@ import { memo, FC } from 'react';
 import {
   HiChevronLeft,
   HiChevronRight,
-  HiChevronDoubleRight,
-  HiChevronDoubleLeft,
 } from 'react-icons/hi2';
 
 interface PaginationProps {

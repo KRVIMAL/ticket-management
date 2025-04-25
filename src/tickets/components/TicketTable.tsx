@@ -1,14 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
-import { TicketModal } from './TicketModal';
-import { ticketInsertField } from '../../helpers/ticket-helper';
 import type { Ticket } from '../../types/ticket';
 import { debounce } from 'lodash';
 import {
   getTickets,
   deleteTicket,
-  createTicket,
-  updateTicket,
   searchTickets,
 } from '../services/ticket.service';
 import toast, { Toaster } from 'react-hot-toast';
@@ -16,12 +12,13 @@ import DeleteConfirmationModal from './DeleteConfirmationModal';
 import Pagination from './Pagination';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
 
-export const TicketTable = () => {
+interface TicketTableProps {
+  onCreateClick: () => void;
+  onEditClick: (ticket: Ticket) => void;
+}
+
+export const TicketTable = ({ onCreateClick, onEditClick }: TicketTableProps) => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formField, setFormField] = useState(ticketInsertField());
-  const [isEditing, setIsEditing] = useState(false);
-  const [currentTicketId, setCurrentTicketId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [total, setTotal] = useState(0);
@@ -56,25 +53,6 @@ export const TicketTable = () => {
       toast.error(error.message || 'Failed to fetch tickets');
       setLoading(false);
     }
-  };
-
-  const handleCreateTicket = () => {
-    setFormField(ticketInsertField());
-    setIsEditing(false);
-    setCurrentTicketId(null);
-    setIsModalOpen(true);
-  };
-
-  const handleEditTicket = (ticket: Ticket) => {
-    const normalizedTicket = {
-      ...ticket,
-      user: typeof ticket.userId === 'object' ? ticket.userId : null,
-    };
-
-    setFormField(ticketInsertField(normalizedTicket));
-    setIsEditing(true);
-    setCurrentTicketId(ticket._id || null);
-    setIsModalOpen(true);
   };
 
   const handleDeleteClick = (ticketId: string) => {
@@ -160,7 +138,7 @@ export const TicketTable = () => {
           )}
         </div>
         <button
-          onClick={handleCreateTicket}
+          onClick={onCreateClick}
           className="h-[39px] w-[137px] rounded-[6px] bg-blue-500 text-white"
         >
           Create Ticket
@@ -176,12 +154,12 @@ export const TicketTable = () => {
           {/* Table header */}
           <div className="mb-4 rounded-[14px] bg-[#F1F1F1] px-4 py-3 font-['Montserrat']">
             <div className="grid grid-cols-6 items-center gap-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-              <div style={{ fontSize: '16px', fontWeight: 500, lineHeight: '100%', color: '#000000' }}>Ticket Id</div>
-              <div style={{ fontSize: '16px', fontWeight: 500, lineHeight: '100%', color: '#000000' }}>User name</div>
-              <div style={{ fontSize: '16px', fontWeight: 500, lineHeight: '100%', color: '#000000' }}>Type</div>
-              <div style={{ fontSize: '16px', fontWeight: 500, lineHeight: '100%', color: '#000000' }}>Messages</div>
-              <div style={{ fontSize: '16px', fontWeight: 500, lineHeight: '100%', color: '#000000' }}>Status</div>
-              <div style={{ fontSize: '16px', fontWeight: 500, lineHeight: '100%', color: '#000000' }}>Action</div>
+              <div style={{ fontSize: '16px', fontWeight: 600, lineHeight: '100%', color: '#000000' }}>Ticket Id</div>
+              <div style={{ fontSize: '16px', fontWeight: 600, lineHeight: '100%', color: '#000000' }}>User name</div>
+              <div style={{ fontSize: '16px', fontWeight: 600, lineHeight: '100%', color: '#000000' }}>Type</div>
+              <div style={{ fontSize: '16px', fontWeight: 600, lineHeight: '100%', color: '#000000' }}>Messages</div>
+              <div style={{ fontSize: '16px', fontWeight: 600, lineHeight: '100%', color: '#000000' }}>Status</div>
+              <div style={{ fontSize: '16px', fontWeight: 600, lineHeight: '100%', color: '#000000' }}>Action</div>
             </div>
           </div>
 
@@ -193,27 +171,28 @@ export const TicketTable = () => {
                 className={`grid grid-cols-6 items-center gap-4 px-4 py-2.5 ${
                   index !== tickets.length - 1 ? 'border-b border-[#C2C2C2]' : ''
                 }`}
+                style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
-                <div className="text-[15px] font-medium">{ticket?.ticketId}</div>
-                <div className="flex items-center text-[15px] font-medium">
-                  <div className="mr-2 h-8 w-8 overflow-hidden rounded-full bg-blue-500 text-center text-white">
+                <div style={{ fontSize: '15px', fontWeight: 500, lineHeight: '100%' }}>{ticket?.ticketId}</div>
+                <div className="flex items-center">
+                  <div className="mr-2 h-8 w-8 overflow-hidden rounded-full bg-blue-500 flex items-center justify-center text-white">
                     {ticket?.userId?.fullName ? ticket.userId.fullName.charAt(0) : 'U'}
                   </div>
-                  {ticket?.userId?.fullName || 'N/A'}
+                  <span style={{ fontSize: '15px', fontWeight: 500, lineHeight: '100%' }}>{ticket?.userId?.fullName || 'N/A'}</span>
                 </div>
-                <div className="text-[15px] font-medium capitalize">
+                <div style={{ fontSize: '15px', fontWeight: 500, lineHeight: '100%', textTransform: 'capitalize' }}>
                   {ticket?.ticketType}
                 </div>
-                <div className="text-[15px] font-medium">
+                <div>
                   {ticket?.messages?.length > 0 ? (
                     <div>
-                      <p>{ticket.messages[0].comments}</p>
-                      <p className="text-xs text-gray-500">
+                      <p style={{ fontSize: '15px', fontWeight: 500, lineHeight: '100%' }}>{ticket.messages[0].comments}</p>
+                      <p style={{ fontSize: '12px', color: '#666' }}>
                         By: {ticket.messages[0].commentBy}
                       </p>
                     </div>
                   ) : (
-                    'N/A'
+                    <span style={{ fontSize: '15px', fontWeight: 500, lineHeight: '100%' }}>N/A</span>
                   )}
                 </div>
                 <div>
@@ -225,7 +204,7 @@ export const TicketTable = () => {
                 </div>
                 <div className="flex space-x-4">
                   <button
-                    onClick={() => handleEditTicket(ticket)}
+                    onClick={() => onEditClick(ticket)}
                     className="text-blue-600 hover:text-blue-900"
                     title="Edit ticket"
                   >
@@ -254,37 +233,6 @@ export const TicketTable = () => {
         onLimitChange={setLimit}
       />
 
-      <TicketModal
-        isOpenModal={isModalOpen}
-        handleUpdateDialogClose={() => setIsModalOpen(false)}
-        setFormField={setFormField}
-        formField={formField}
-        addTicketHandler={async (newTicket) => {
-          try {
-            if (isEditing && currentTicketId) {
-              const updatedTicket = await updateTicket(
-                currentTicketId,
-                newTicket
-              );
-              setTickets(
-                tickets?.map((ticket: any) =>
-                  ticket?._id === currentTicketId ? updatedTicket : ticket
-                )
-              );
-              toast.success('Ticket updated successfully');
-            } else {
-              const createdTicket = await createTicket(newTicket);
-              setTickets([...tickets, createdTicket]);
-              toast.success('Ticket created successfully');
-            }
-            setIsModalOpen(false);
-            await fetchTickets();
-          } catch (error: any) {
-            toast.error(error.message || 'Failed to save ticket');
-          }
-        }}
-        edit={isEditing}
-      />
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
