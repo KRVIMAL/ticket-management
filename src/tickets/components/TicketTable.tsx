@@ -101,7 +101,7 @@ export const TicketTable = () => {
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'open':
-        return 'bg-green-100 text-green-800';
+        return 'bg-[#8EDF5B] text-black';
       case 'in_progress':
         return 'bg-yellow-100 text-yellow-800';
       case 'resolved':
@@ -123,52 +123,49 @@ export const TicketTable = () => {
   }, 300);
 
   return (
-    <div>
+    <div style={{fontFamily: 'Montserrat, sans-serif'}}>
       <Toaster position="top-center" />
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Tickets</h2>
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <input
-              type="text"
-              value={searchText}
-              onChange={(e) => {
-                setSearchText(e.target.value);
-                debouncedSearch(e.target.value);
-              }}
-              placeholder="Search tickets..."
-              className="rounded-md border px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {searchText && (
-              <button
-                onClick={() => setSearchText('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
+      
+      {/* Header section with search and create button */}
+      <div className="mb-6 flex items-center justify-end">
+        <div className="relative mr-4">
+          <input
+            type="text"
+            value={searchText}
+            onChange={(e) => {
+              setSearchText(e.target.value);
+              debouncedSearch(e.target.value);
+            }}
+            placeholder="Search"
+            className="h-[39px] w-[105px] rounded-[6px] border border-[#CDCDCD] px-3 py-2 focus:outline-none"
+          />
+          {searchText && (
+            <button
+              onClick={() => setSearchText('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                viewBox="0 0 20 20"
+                fill="currentColor"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
-            )}
-          </div>
-          <button
-            onClick={handleCreateTicket}
-            className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-          >
-            Create Ticket
-          </button>
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+          )}
         </div>
+        <button
+          onClick={handleCreateTicket}
+          className="h-[39px] w-[137px] rounded-[6px] bg-blue-500 text-white"
+        >
+          Create Ticket
+        </button>
       </div>
-
-      <div className="mb-4 text-sm text-gray-600">Total records: {total}</div>
 
       {loading ? (
         <div className="flex h-64 items-center justify-center">
@@ -176,87 +173,79 @@ export const TicketTable = () => {
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full rounded-lg border bg-white">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Ticket ID
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Type
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  USER NAME
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Email
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Messages
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {tickets?.map((ticket: any) => (
-                <tr key={ticket?._id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4 text-sm">{ticket?.ticketId}</td>
-                  <td className="px-4 py-4 text-sm capitalize">
-                    {ticket?.ticketType}
-                  </td>
-                  <td className="px-4 py-4 text-sm">
-                    {ticket?.userId?.fullName || 'N/A'}
-                  </td>
-                  <td className="px-4 py-4 text-sm">
-                    {ticket?.userId?.email || 'N/A'}
-                  </td>
-                  <td className="px-4 py-4 text-sm">
-                    {ticket?.messages?.map((message: any, index: any) => (
-                      <div key={index} className={index > 0 ? 'mt-2' : ''}>
-                        <p>{message.comments}</p>
-                        <p className="text-xs text-gray-500">
-                          Comment By: {message.commentBy}
-                        </p>
-                      </div>
-                    ))}
-                  </td>
-                  <td className="px-4 py-4 text-sm">
-                    <span
-                      className={`rounded-full px-2 py-1 text-xs ${getStatusColor(ticket.ticketStatus)}`}
-                    >
-                      {ticket.ticketStatus}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 text-sm">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleEditTicket(ticket)}
-                        className="text-blue-600 hover:text-blue-900"
-                        title="Edit ticket"
-                      >
-                        <FiEdit />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(ticket._id || '')}
-                        className="text-red-600 hover:text-red-900"
-                        title="Delete ticket"
-                      >
-                        <FiTrash2 />
-                      </button>
+          {/* Table header */}
+          <div className="mb-4 rounded-[14px] bg-[#F1F1F1] px-4 py-3 font-['Montserrat']">
+            <div className="grid grid-cols-6 items-center gap-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              <div style={{ fontSize: '16px', fontWeight: 500, lineHeight: '100%', color: '#000000' }}>Ticket Id</div>
+              <div style={{ fontSize: '16px', fontWeight: 500, lineHeight: '100%', color: '#000000' }}>User name</div>
+              <div style={{ fontSize: '16px', fontWeight: 500, lineHeight: '100%', color: '#000000' }}>Type</div>
+              <div style={{ fontSize: '16px', fontWeight: 500, lineHeight: '100%', color: '#000000' }}>Messages</div>
+              <div style={{ fontSize: '16px', fontWeight: 500, lineHeight: '100%', color: '#000000' }}>Status</div>
+              <div style={{ fontSize: '16px', fontWeight: 500, lineHeight: '100%', color: '#000000' }}>Action</div>
+            </div>
+          </div>
+
+          {/* Table body */}
+          <div className="w-full">
+            {tickets?.map((ticket: any, index: number) => (
+              <div 
+                key={ticket?._id} 
+                className={`grid grid-cols-6 items-center gap-4 px-4 py-2.5 ${
+                  index !== tickets.length - 1 ? 'border-b border-[#C2C2C2]' : ''
+                }`}
+              >
+                <div className="text-[15px] font-medium">{ticket?.ticketId}</div>
+                <div className="flex items-center text-[15px] font-medium">
+                  <div className="mr-2 h-8 w-8 overflow-hidden rounded-full bg-blue-500 text-center text-white">
+                    {ticket?.userId?.fullName ? ticket.userId.fullName.charAt(0) : 'U'}
+                  </div>
+                  {ticket?.userId?.fullName || 'N/A'}
+                </div>
+                <div className="text-[15px] font-medium capitalize">
+                  {ticket?.ticketType}
+                </div>
+                <div className="text-[15px] font-medium">
+                  {ticket?.messages?.length > 0 ? (
+                    <div>
+                      <p>{ticket.messages[0].comments}</p>
+                      <p className="text-xs text-gray-500">
+                        By: {ticket.messages[0].commentBy}
+                      </p>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  ) : (
+                    'N/A'
+                  )}
+                </div>
+                <div>
+                  <span
+                    className={`inline-block h-[25px] w-[94px] rounded-[18px] text-center text-[15px] font-medium leading-[25px] ${getStatusColor(ticket.ticketStatus)}`}
+                  >
+                    {ticket.ticketStatus}
+                  </span>
+                </div>
+                <div className="flex space-x-4">
+                  <button
+                    onClick={() => handleEditTicket(ticket)}
+                    className="text-blue-600 hover:text-blue-900"
+                    title="Edit ticket"
+                  >
+                    <FiEdit />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(ticket._id || '')}
+                    className="text-red-600 hover:text-red-900"
+                    title="Delete ticket"
+                  >
+                    <FiTrash2 />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
+      {/* Pagination */}
       <Pagination
         currentPage={page}
         totalItems={total}
