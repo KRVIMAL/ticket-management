@@ -245,53 +245,24 @@ export const TicketForm = ({
   };
 
   return (
-    <div
-      className="container mx-auto p-4"
-      style={{ fontFamily: 'Montserrat, sans-serif' }}
-    >
-      <h1
-        style={{
-          fontFamily: 'Montserrat, sans-serif',
-          fontWeight: 700,
-          fontSize: '18px',
-          marginBottom: '24px',
-        }}
-      >
+    <div className="container mx-auto p-4 font-montserrat">
+      <h1 className="mb-6 text-lg font-bold">
         {edit ? 'Update Ticket' : 'Create Ticket'}
       </h1>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Row 1: Ticket Type and Status */}
         <div>
-          <label
-            style={{
-              fontFamily: 'Montserrat, sans-serif',
-              fontWeight: 500,
-              fontSize: '14px',
-              lineHeight: '100%',
-              color: '#2B2B2B',
-              marginBottom: '8px',
-              display: 'block',
-            }}
-          >
+          <label className="mb-2 block text-sm font-medium text-[#2B2B2B]">
             Ticket Type *
           </label>
           <select
             name="ticketType"
             value={formField?.ticketType?.value}
             onChange={handleOnChange}
-            style={{
-              width: '100%',
-              height: '38px',
-              borderRadius: '10px',
-              border: '1px solid #C2C2C2',
-              padding: '0 12px',
-              fontFamily: 'Montserrat, sans-serif',
-              fontWeight: 500,
-              fontSize: '14px',
-              color: formField?.ticketType?.value ? '#000000' : '#8E8E8E',
-            }}
-            className={formField?.ticketType?.error ? 'border-red-500' : ''}
+            className={`h-[38px] w-full rounded-[10px] border border-[#C2C2C2] px-3 py-2 text-sm font-medium ${
+              formField?.ticketType?.value ? 'text-black' : 'text-[#8E8E8E]'
+            } ${formField?.ticketType?.error ? 'border-red-500' : ''}`}
           >
             <option value="">Select ticket type</option>
             {ticketTypeOptions?.map((option: any) => (
@@ -308,35 +279,16 @@ export const TicketForm = ({
         </div>
 
         <div>
-          <label
-            style={{
-              fontFamily: 'Montserrat, sans-serif',
-              fontWeight: 500,
-              fontSize: '14px',
-              lineHeight: '100%',
-              color: '#2B2B2B',
-              marginBottom: '8px',
-              display: 'block',
-            }}
-          >
+          <label className="mb-2 block text-sm font-medium text-[#2B2B2B]">
             Status *
           </label>
           <select
             name="ticketStatus"
             value={formField?.ticketStatus?.value}
             onChange={handleOnChange}
-            style={{
-              width: '100%',
-              height: '38px',
-              borderRadius: '10px',
-              border: '1px solid #C2C2C2',
-              padding: '0 12px',
-              fontFamily: 'Montserrat, sans-serif',
-              fontWeight: 500,
-              fontSize: '14px',
-              color: formField?.ticketStatus?.value ? '#000000' : '#8E8E8E',
-            }}
-            className={formField?.ticketStatus?.error ? 'border-red-500' : ''}
+            className={`h-[38px] w-full rounded-[10px] border border-[#C2C2C2] px-3 py-2 text-sm font-medium ${
+              formField?.ticketStatus?.value ? 'text-black' : 'text-[#8E8E8E]'
+            } ${formField?.ticketStatus?.error ? 'border-red-500' : ''}`}
           >
             <option value="">Select status</option>
             {ticketStatusOptions?.map((option: any) => (
@@ -354,17 +306,7 @@ export const TicketForm = ({
 
         {/* Row 2: User Name and Email */}
         <div>
-          <label
-            style={{
-              fontFamily: 'Montserrat, sans-serif',
-              fontWeight: 500,
-              fontSize: '14px',
-              lineHeight: '100%',
-              color: '#2B2B2B',
-              marginBottom: '8px',
-              display: 'block',
-            }}
-          >
+          <label className="mb-2 block text-sm font-medium text-[#2B2B2B]">
             User *
           </label>
           <select
@@ -378,18 +320,11 @@ export const TicketForm = ({
               }
             }}
             disabled={edit}
-            style={{
-              width: '100%',
-              height: '38px',
-              borderRadius: '10px',
-              border: '1px solid #C2C2C2',
-              padding: '0 12px',
-              fontFamily: 'Montserrat, sans-serif',
-              fontWeight: 500,
-              fontSize: '14px',
-              color: formField.user.value ? '#000000' : '#8E8E8E',
-            }}
-            className={formField?.user?.error ? 'border-red-500' : ''}
+            className={`h-[38px] w-full rounded-[10px] border border-[#C2C2C2] px-3 py-2 text-sm font-medium ${
+              formField.user.value ? 'text-black' : 'text-[#8E8E8E]'
+            } ${formField?.user?.error ? 'border-red-500' : ''} ${
+              edit ? 'bg-gray-100' : ''
+            }`}
           >
             <option value="">Select user</option>
             {isLoading ? (
@@ -410,17 +345,7 @@ export const TicketForm = ({
         </div>
 
         <div>
-          <label
-            style={{
-              fontFamily: 'Montserrat, sans-serif',
-              fontWeight: 500,
-              fontSize: '14px',
-              lineHeight: '100%',
-              color: '#2B2B2B',
-              marginBottom: '8px',
-              display: 'block',
-            }}
-          >
+          <label className="mb-2 block text-sm font-medium text-[#2B2B2B]">
             Email *
           </label>
           <input
@@ -428,48 +353,19 @@ export const TicketForm = ({
             name="userEmail"
             value={formField?.userEmail?.value}
             readOnly
-            style={{
-              width: '100%',
-              height: '38px',
-              borderRadius: '10px',
-              border: '1px solid #C2C2C2',
-              padding: '0 12px',
-              fontFamily: 'Montserrat, sans-serif',
-              fontWeight: 500,
-              fontSize: '14px',
-              color: '#000000',
-              backgroundColor: '#f5f5f5',
-            }}
+            className="h-[38px] w-full rounded-[10px] border border-[#C2C2C2] bg-gray-100 px-3 py-2 text-sm font-medium text-black"
           />
         </div>
 
         {/* Row 3: Messages section */}
         <div className="md:col-span-2">
-          <h2
-            style={{
-              fontFamily: 'Montserrat, sans-serif',
-              fontWeight: 700,
-              fontSize: '18px',
-              marginTop: '16px',
-              marginBottom: '16px',
-            }}
-          >
+          <h2 className="mb-4 mt-4 text-lg font-bold">
             Messages
           </h2>
 
           <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label
-                style={{
-                  fontFamily: 'Montserrat, sans-serif',
-                  fontWeight: 500,
-                  fontSize: '14px',
-                  lineHeight: '100%',
-                  color: '#2B2B2B',
-                  marginBottom: '8px',
-                  display: 'block',
-                }}
-              >
+              <label className="mb-2 block text-sm font-medium text-[#2B2B2B]">
                 New Message *
               </label>
               <input
@@ -480,53 +376,28 @@ export const TicketForm = ({
                   setMessageError('');
                 }}
                 placeholder="Enter new message"
-                style={{
-                  width: '100%',
-                  height: '38px',
-                  borderRadius: '10px',
-                  border: '1px solid #C2C2C2',
-                  padding: '0 12px',
-                  fontFamily: 'Montserrat, sans-serif',
-                  fontWeight: 500,
-                  fontSize: '14px',
-                  color: '#000000',
-                }}
-                className={messageError ? 'border-red-500' : ''}
+                className={`h-[38px] w-full rounded-[10px] border border-[#C2C2C2] px-3 py-2 text-sm font-medium text-black ${
+                  messageError ? 'border-red-500' : ''
+                }`}
               />
               {messageError && (
                 <p className="mt-1 text-xs text-red-500">{messageError}</p>
               )}
-               <div className="flex items-end">
-              <button
-                onClick={handleAddMessage}
-                className="h-[38px] w-[114px] rounded-[10px] bg-[#187CFF] px-4 text-white"
-                style={{
-                  fontFamily: 'Montserrat, sans-serif',
-                  fontWeight: 500,
-                  fontSize: '16px',
-                  lineHeight: '100%',
-                  marginTop:"8px"
-                }}
-              >
-                Add
-              </button>
+              <div className="mt-2">
+                <button
+                  onClick={handleAddMessage}
+                  className="h-[38px] w-[114px] rounded-[10px] bg-[#187CFF] px-4 text-white"
+                >
+                  Add
+                </button>
+              </div>
             </div>
-            </div>
-
-           
           </div>
 
           {/* Messages list */}
           {messages.length > 0 && (
             <div className="mb-6 mt-4 rounded-lg border border-gray-200 p-4">
-              <h3
-                style={{
-                  fontFamily: 'Montserrat, sans-serif',
-                  fontWeight: 600,
-                  fontSize: '14px',
-                  marginBottom: '12px',
-                }}
-              >
+              <h3 className="mb-3 text-sm font-semibold">
                 Added Messages
               </h3>
 
@@ -536,23 +407,10 @@ export const TicketForm = ({
                   className="mb-2 flex items-center justify-between border-b border-gray-100 pb-2"
                 >
                   <div>
-                    <p
-                      style={{
-                        fontFamily: 'Montserrat, sans-serif',
-                        fontWeight: 500,
-                        fontSize: '14px',
-                      }}
-                    >
+                    <p className="text-sm font-medium">
                       {message?.comments}
                     </p>
-                    <p
-                      style={{
-                        fontFamily: 'Montserrat, sans-serif',
-                        fontWeight: 400,
-                        fontSize: '12px',
-                        color: '#666',
-                      }}
-                    >
+                    <p className="text-xs text-gray-600">
                       By: {message?.commentBy}
                     </p>
                   </div>
@@ -587,33 +445,13 @@ export const TicketForm = ({
       <div className="mt-8 flex justify-end space-x-4">
         <button
           onClick={handleCancel}
-          style={{
-            width: '114px',
-            height: '46px',
-            borderRadius: '10px',
-            backgroundColor: '#D7D7D7',
-            color: '#626262',
-            fontFamily: 'Montserrat, sans-serif',
-            fontWeight: 500,
-            fontSize: '16px',
-            lineHeight: '100%',
-          }}
+          className="h-[46px] w-[114px] rounded-[10px] bg-[#D7D7D7] text-[#626262]"
         >
           Cancel
         </button>
         <button
           onClick={handleSubmit}
-          style={{
-            width: '114px',
-            height: '46px',
-            borderRadius: '10px',
-            backgroundColor: '#187CFF',
-            color: '#FFFFFF',
-            fontFamily: 'Montserrat, sans-serif',
-            fontWeight: 500,
-            fontSize: '16px',
-            lineHeight: '100%',
-          }}
+          className="h-[46px] w-[114px] rounded-[10px] bg-[#187CFF] text-white"
         >
           {edit ? 'Update' : 'Create'}
         </button>

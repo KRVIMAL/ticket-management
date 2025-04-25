@@ -154,12 +154,12 @@ export const TicketTable = ({ onCreateClick, onEditClick }: TicketTableProps) =>
           {/* Table header */}
           <div className="mb-4 rounded-[14px] bg-[#F1F1F1] px-4 py-3 font-['Montserrat']">
             <div className="grid grid-cols-6 items-center gap-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-              <div style={{ fontSize: '16px', fontWeight: 600, lineHeight: '100%', color: '#000000' }}>Ticket Id</div>
-              <div style={{ fontSize: '16px', fontWeight: 600, lineHeight: '100%', color: '#000000' }}>User name</div>
-              <div style={{ fontSize: '16px', fontWeight: 600, lineHeight: '100%', color: '#000000' }}>Type</div>
-              <div style={{ fontSize: '16px', fontWeight: 600, lineHeight: '100%', color: '#000000' }}>Messages</div>
-              <div style={{ fontSize: '16px', fontWeight: 600, lineHeight: '100%', color: '#000000' }}>Status</div>
-              <div style={{ fontSize: '16px', fontWeight: 600, lineHeight: '100%', color: '#000000' }}>Action</div>
+              <div style={{ fontSize: '16px', fontWeight: 500, lineHeight: '100%', color: '#000000' }}>Ticket Id</div>
+              <div style={{ fontSize: '16px', fontWeight: 500, lineHeight: '100%', color: '#000000' }}>User name</div>
+              <div style={{ fontSize: '16px', fontWeight: 500, lineHeight: '100%', color: '#000000' }}>Type</div>
+              <div style={{ fontSize: '16px', fontWeight: 500, lineHeight: '100%', color: '#000000' }}>Messages</div>
+              <div style={{ fontSize: '16px', fontWeight: 500, lineHeight: '100%', color: '#000000' }}>Status</div>
+              <div style={{ fontSize: '16px', fontWeight: 500, lineHeight: '100%', color: '#000000' }}>Action</div>
             </div>
           </div>
 
